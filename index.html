@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yuan Gao — Duke University</title>
+<meta name="description" content="Personal homepage of Yuan Gao, Master's student in Statistical Science at Duke University.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:opsz,wght@9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:        #f6f1e7;
+  --ink:       #1a1f2e;
+  --ink-soft:  #4a5165;
+  --oxblood:   #7a1f2b;
+  --gold:      #b8935a;
+  --cream:     #fdfaf3;
+  --line:      rgba(26, 31, 46, 0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Scroll progress bar at top of viewport */
+.progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--oxblood), var(--gold));
+  z-index: 200;
+  transition: width 0.1s linear;
+}
+
+/* ===== FALLING LEAVES (mouse trail) ===== */
+.falling-leaf {
+  position: fixed;
+  pointer-events: none;
+  z-index: 50;
+  width: 18px;
+  height: 18px;
+  margin-left: -9px;
+  margin-top: -9px;
+  animation: leafFall var(--dur, 4s) cubic-bezier(0.4, 0.0, 0.6, 1.0) forwards;
+  will-change: transform, opacity;
+}
+.falling-leaf svg { width: 100%; height: 100%; display: block; }
+@keyframes leafFall {
+  0%   { transform: translate(0, 0) rotate(0deg);
+         opacity: 0.85; }
+  10%  { opacity: 0.85; }
+  25%  { transform: translate(calc(var(--drift) * 0.5),  18vh) rotate(calc(var(--rot) * 0.3));  }
+  50%  { transform: translate(calc(var(--drift) * -0.3), 38vh) rotate(calc(var(--rot) * 0.55)); }
+  75%  { transform: translate(calc(var(--drift) * 0.8),  62vh) rotate(calc(var(--rot) * 0.85)); }
+  100% { transform: translate(var(--drift), 110vh) rotate(var(--rot));
+         opacity: 0; }
+}
+
+/* Background mesh */
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-mesh::before, .bg-mesh::after {
+  content: '';
+  position: absolute;
+  width: 65vw;
+  height: 65vw;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.32;
+  animation: float 28s ease-in-out infinite;
+}
+.bg-mesh::before {
+  background: radial-gradient(circle, var(--oxblood), transparent 70%);
+  top: -25%; left: -15%;
+}
+.bg-mesh::after {
+  background: radial-gradient(circle, var(--gold), transparent 70%);
+  bottom: -25%; right: -15%;
+  animation-delay: -14s;
+}
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(8vw, -6vw) scale(1.1); }
+  66%      { transform: translate(-6vw, 8vw) scale(0.95); }
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative;
+  z-index: 2;
+}
+
+nav {
+  position: fixed;
+  top: 28px;
+  right: 36px;
+  z-index: 100;
+  display: flex;
+  gap: 28px;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+nav a {
+  color: var(--ink);
+  text-decoration: none;
+  position: relative;
+  padding: 4px 0;
+  transition: color 0.3s;
+}
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 0; height: 1px;
+  background: var(--oxblood);
+  transition: width 0.35s ease;
+}
+nav a:hover { color: var(--oxblood); }
+nav a:hover::after { width: 100%; }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 0 80px;
+}
+.hero-eyebrow {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--oxblood);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s forwards;
+  letter-spacing: 0.02em;
+}
+.hero-eyebrow::before {
+  content: '§ ';
+  color: var(--gold);
+  font-style: normal;
+}
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(3.2rem, 9vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  margin-bottom: 36px;
+  font-variation-settings: 'opsz' 144;
+}
+h1 .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(50px);
+  animation: fadeUp 1s forwards;
+}
+h1 .accent { font-style: italic; color: var(--oxblood); }
+h1 .dot { color: var(--gold); font-style: italic; }
+
+.hero-meta {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  max-width: 640px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1.3s forwards;
+}
+.hero-meta strong { color: var(--ink); font-weight: 500; }
+.hero-meta a {
+  color: var(--oxblood);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(122, 31, 43, 0.3);
+  transition: border-color 0.3s;
+}
+.hero-meta a:hover { border-color: var(--oxblood); }
+
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ===== TIMELINE / PROGRESS BAR ===== */
+.timeline {
+  margin-top: 64px;
+  max-width: 600px;
+  position: relative;
+  opacity: 0;
+  animation: fadeUp 0.9s 1.7s forwards;
+}
+.timeline-eyebrow {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.stops {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  padding-top: 44px;
+}
+/* The horizontal track behind the dots */
+.track {
+  position: absolute;
+  top: 50px;
+  left: 7px;
+  right: 7px;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(26, 31, 46, 0.25) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+  z-index: 0;
+}
+.stop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid rgba(26, 31, 46, 0.35);
+  margin-bottom: 14px;
+  position: relative;
+}
+.stop.current .dot {
+  background: var(--oxblood);
+  border-color: var(--oxblood);
+  animation: dotPulse 2.2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(122, 31, 43, 0.55); }
+  60%      { box-shadow: 0 0 0 14px rgba(122, 31, 43, 0); }
+}
+.stop .year {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink);
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+.stop.current .year { color: var(--oxblood); }
+.stop .label {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.stop.current .label { color: var(--ink); font-weight: 600; }
+
+/* The "current stage ↓" pointer above the active dot */
+.here-pointer {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--oxblood);
+  white-space: nowrap;
+  text-align: center;
+  letter-spacing: 0.04em;
+  animation: bobPointer 2.8s ease-in-out infinite;
+}
+.here-pointer .arrow {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 1rem;
+  line-height: 1;
+}
+@keyframes bobPointer {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* SECTIONS */
+section { padding: 120px 0; position: relative; }
+.section-num {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  margin-bottom: 56px;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+.section-title em { color: var(--oxblood); }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.interests-text {
+  font-family: 'Fraunces', serif;
+  font-size: 1.45rem;
+  line-height: 1.55;
+  max-width: 760px;
+  font-weight: 300;
+  margin-bottom: 44px;
+  color: var(--ink);
+}
+.interests-text em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+
+.tags { display: flex; flex-wrap: wrap; gap: 12px; }
+.tag {
+  font-size: 0.82rem;
+  padding: 9px 20px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  transition: all 0.3s ease;
+}
+.tag:hover {
+  background: var(--ink);
+  color: var(--cream);
+  transform: translateY(-3px);
+}
+
+.pub-empty {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 56px 40px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(2px);
+  text-align: center;
+  max-width: 720px;
+}
+.pub-empty .glyph {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 2.2rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.pub-empty .line1 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.pub-empty .line2 {
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* PROJECTS */
+.projects { display: flex; flex-direction: column; gap: 20px; }
+.project {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 36px 40px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(2px);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.4s ease,
+              border-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.project::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(184, 147, 90, 0.08));
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.project:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 50px -20px rgba(26, 31, 46, 0.2);
+  border-color: var(--oxblood);
+}
+.project:hover::before { opacity: 1; }
+
+.project-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.project-meta {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+.project-meta .dot-sep { color: var(--ink-soft); margin: 0 8px; font-style: normal; }
+.project-cta {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink);
+  transition: color 0.3s;
+}
+.project-cta::after {
+  content: ' ↗';
+  display: inline-block;
+  transition: transform 0.3s;
+  color: var(--gold);
+}
+.project:hover .project-cta { color: var(--oxblood); }
+.project:hover .project-cta::after {
+  transform: translate(3px, -3px);
+  color: var(--oxblood);
+}
+.project-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+  line-height: 1.15;
+  color: var(--ink);
+}
+.project-title em { font-style: italic; color: var(--oxblood); }
+.project-desc {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.65;
+  margin-bottom: 22px;
+  max-width: 760px;
+}
+.project-desc strong { color: var(--ink); font-weight: 500; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.stack-item {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  padding: 5px 10px;
+  background: rgba(26, 31, 46, 0.06);
+  color: var(--ink);
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* QUOTE */
+.quote-section {
+  padding: 160px 0 200px;
+  text-align: center;
+  position: relative;
+}
+.quote-ornament {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  color: var(--gold);
+  margin-bottom: 40px;
+  letter-spacing: 0.4em;
+  font-style: italic;
+}
+.quote-text {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6.5vw, 5.2rem);
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 36px;
+  font-variation-settings: 'opsz' 144;
+}
+.quote-text .first-letter { color: var(--oxblood); }
+.quote-translation {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  margin-bottom: 32px;
+  font-weight: 300;
+}
+.quote-rule {
+  width: 60px;
+  height: 1px;
+  background: var(--gold);
+  margin: 0 auto 28px;
+}
+.quote-attr {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  font-weight: 500;
+}
+.quote-attr .years {
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-left: 12px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 720px) {
+  nav { display: none; }
+  .container { padding: 0 24px; }
+  section { padding: 80px 0; }
+  .hero { padding: 100px 0 60px; }
+  .project { padding: 28px 24px; }
+  .project-head { flex-direction: column; align-items: flex-start; }
+  .pub-empty { padding: 40px 24px; }
+  .quote-section { padding: 100px 0 120px; }
+  .timeline { margin-top: 48px; }
+  .stop .year { font-size: 0.95rem; }
+  .stop .label { font-size: 0.66rem; letter-spacing: 0.06em; }
+  .here-pointer { font-size: 0.78rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .timeline { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hidden SVG: leaf shape used by the falling-leaf trail -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="leaf" viewBox="0 0 24 32">
+      <path d="M 12 1 C 19 5, 22.5 13, 20.5 21 C 18.5 27, 14.5 30, 12 30 C 9.5 30, 5.5 27, 3.5 21 C 1.5 13, 5 5, 12 1 Z"
+            fill="currentColor"/>
+      <line x1="12" y1="1" x2="12" y2="30" stroke="rgba(0,0,0,0.28)" stroke-width="0.55"/>
+      <path d="M 12 7  Q 16 8, 18.5 11" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+      <path d="M 12 7  Q 8 8,  5.5 11" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+      <path d="M 12 14 Q 17 15, 19.5 19" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+      <path d="M 12 14 Q 7 15,  4.5 19" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+      <path d="M 12 21 Q 15.5 22, 17 25" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+      <path d="M 12 21 Q 8.5 22,  7 25" stroke="rgba(0,0,0,0.2)" stroke-width="0.45" fill="none"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="progress" id="progress"></div>
+<div class="bg-mesh"></div>
+<div class="grain"></div>
+
+<nav>
+  <a href="#about">About</a>
+  <a href="#research">Research</a>
+  <a href="#publications">Publications</a>
+  <a href="#projects">Projects</a>
+</nav>
+
+<div class="container">
+
+  <!-- 1 · HERO -->
+  <header class="hero" id="about">
+    <div class="hero-eyebrow">Researcher · last updated April 2026</div>
+
+    <h1>
+      <span class="word" style="animation-delay:0.4s">Yuan</span>
+      <span class="word accent" style="animation-delay:0.6s">Gao</span><span class="word dot" style="animation-delay:0.8s">.</span>
+    </h1>
+
+    <p class="hero-meta">
+      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>, working at the intersection of machine learning, agentic AI systems, and applied statistics.
+      Reach me at <a href="mailto:yuan.gao2@duke.edu">yuan.gao2@duke.edu</a>.
+    </p>
+
+    <!-- Duke timeline / progress bar -->
+    <div class="timeline" aria-label="Duke academic timeline">
+      <div class="timeline-eyebrow">— My Duke journey</div>
+      <div class="stops">
+        <div class="track" aria-hidden="true"></div>
+
+        <div class="stop current">
+          <div class="here-pointer">
+            current stage
+            <span class="arrow">↓</span>
+          </div>
+          <div class="dot"></div>
+          <div class="year">2025</div>
+          <div class="label">First Year</div>
+        </div>
+
+        <div class="stop">
+          <div class="dot"></div>
+          <div class="year">2026</div>
+          <div class="label">Second Year</div>
+        </div>
+
+        <div class="stop">
+          <div class="dot"></div>
+          <div class="year">2027</div>
+          <div class="label">Graduation</div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- 2 · RESEARCH -->
+  <section id="research">
+    <div class="reveal">
+      <div class="section-num">— 01 / Research</div>
+      <h2 class="section-title">What I work <em>on.</em></h2>
+
+      <p class="interests-text">
+        My interests sit at the intersection of <em>machine learning</em> and <em>agentic AI systems</em>. I build LLM-driven agents and reinforcement-learning pipelines that act as <em>tools for reasoning</em> — particularly for problems in mathematics and computer science where structured search, verification, and tool-use matter. More recently, I've turned toward applications of AI in <em>biostatistics</em> and <em>clinical trial design</em>, where principled inference and modern modeling can meet to inform real medical decisions.
+      </p>
+
+      <div class="tags">
+        <span class="tag">Agentic AI</span>
+        <span class="tag">Large Language Models</span>
+        <span class="tag">Reinforcement Learning</span>
+        <span class="tag">AI for Math &amp; CS</span>
+        <span class="tag">Biostatistics</span>
+        <span class="tag">Clinical Trial Design</span>
+        <span class="tag">Bayesian Methods</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · PUBLICATIONS -->
+  <section id="publications">
+    <div class="reveal">
+      <div class="section-num">— 02 / Publications</div>
+      <h2 class="section-title">Selected <em>papers.</em></h2>
+
+      <div class="pub-empty">
+        <div class="glyph">❦</div>
+        <div class="line1">In preparation.</div>
+        <div class="line2">Manuscripts are in progress. This section will be updated as work moves through review.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · PROJECTS -->
+  <section id="projects">
+    <div class="reveal">
+      <div class="section-num">— 03 / Projects</div>
+      <h2 class="section-title">Things I've <em>built.</em></h2>
+
+      <div class="projects">
+
+        <a class="project" href="https://github.com/FELIXGAO0315/Connections-Generating-Agent-System" target="_blank" rel="noopener">
+          <div class="project-head">
+            <div class="project-meta">2026 <span class="dot-sep">·</span> Independent project</div>
+            <div class="project-cta">View Repository</div>
+          </div>
+          <h3 class="project-title">A Multi-Agent System for Generating <em>NYT Connections</em> Puzzles</h3>
+          <p class="project-desc">
+            An end-to-end agentic pipeline that generates thousands of <strong>NYT Connections-style word puzzles</strong> at scale, spanning all four difficulty tiers (Yellow, Green, Blue, Purple). The system fuses three layers: <strong>ML classifiers and rule-based gates</strong> trained on the real NYT corpus to assign difficulty, <strong>external knowledge sources</strong> (WordNet, Wikidata, Datamuse) for seed material, and <strong>selective LLM judging</strong> for quality control. The current release introduces a <strong>five-template puzzle assembler</strong> — Random, Misdirection, Anchor, Surface Trap, and Trojan Horse — each targeting a distinct misdirection pattern players experience. The entire LLM layer runs asynchronously in parallel, bounded only by upstream rate limits. Across a 100-puzzle benchmark, 99/100 used a non-trivial template at quality avg 8.53.
+          </p>
+          <div class="stack">
+            <span class="stack-item">Python</span>
+            <span class="stack-item">asyncio</span>
+            <span class="stack-item">Flask</span>
+            <span class="stack-item">scikit-learn</span>
+            <span class="stack-item">MiniLM embeddings</span>
+            <span class="stack-item">WordNet</span>
+            <span class="stack-item">LLM-as-judge</span>
+          </div>
+        </a>
+
+        <a class="project" href="https://github.com/FELIXGAO0315/sp500-sector-multivariate" target="_blank" rel="noopener">
+          <div class="project-head">
+            <div class="project-meta">2026 <span class="dot-sep">·</span> STA-832 final project</div>
+            <div class="project-cta">View Repository</div>
+          </div>
+          <h3 class="project-title">Multivariate Analysis of <em>S&amp;P 500</em> Sector Returns &amp; Sparse CCA</h3>
+          <p class="project-desc">
+            A two-part study of the joint structure of equity sector returns. <strong>Part I</strong> applies <strong>Principal Component Analysis</strong> and <strong>Canonical Correlation Analysis</strong> to daily log-returns of the eleven S&amp;P 500 sector ETFs over 2018–2024, recovering the dominant factor structure and quantifying the linear coupling between cyclical and defensive sector groups, with pre/post-COVID robustness checks. <strong>Part II</strong> is a theoretical review of <strong>Sparse Canonical Correlation Analysis</strong> via the Penalized Matrix Decomposition framework — formulation, the coordinate-ascent algorithm with soft-thresholding, consistency and minimax results, and connections to sparse PCA, reduced-rank regression, the graphical lasso, and PLS.
+          </p>
+          <div class="stack">
+            <span class="stack-item">R</span>
+            <span class="stack-item">PCA</span>
+            <span class="stack-item">CCA</span>
+            <span class="stack-item">Sparse CCA</span>
+            <span class="stack-item">quantmod</span>
+            <span class="stack-item">ggplot2</span>
+          </div>
+        </a>
+
+        <a class="project" href="https://github.com/FELIXGAO0315/Earthquake-Prediction-Project" target="_blank" rel="noopener">
+          <div class="project-head">
+            <div class="project-meta">2025 <span class="dot-sep">·</span> STA-521 final project</div>
+            <div class="project-cta">View Repository</div>
+          </div>
+          <h3 class="project-title">Predicting <em>Earthquake-Induced Building Damage</em> in Nepal</h3>
+          <p class="project-desc">
+            A multiclass classification study on the <strong>2015 Nepal earthquake</strong> dataset — 200,000 training and 60,000 test buildings, each described by 38 structural, geographic, and usage features, with the goal of predicting damage severity (low / medium / high). I benchmarked five approaches under a unified preprocessing pipeline: <strong>XGBoost, CatBoost, an MLP with embedding layers, multinomial logistic regression, and ElasticNet</strong>. Tuned XGBoost with target-encoded geographic features performed best (Accuracy 0.7442, Quadratic Weighted Kappa 0.6177), confirming that hierarchical geo IDs and tree-based interactions are the primary signal in the data. The notebook documents the full EDA, hyperparameter search, and a comparative analysis of how each model trades off accuracy against ordinal coherence.
+          </p>
+          <div class="stack">
+            <span class="stack-item">Python</span>
+            <span class="stack-item">XGBoost</span>
+            <span class="stack-item">CatBoost</span>
+            <span class="stack-item">PyTorch</span>
+            <span class="stack-item">scikit-learn</span>
+            <span class="stack-item">Target Encoding</span>
+          </div>
+        </a>
+
+        <a class="project" href="https://github.com/FELIXGAO0315/Bayesian-Survival-Analysis" target="_blank" rel="noopener">
+          <div class="project-head">
+            <div class="project-meta">2025 <span class="dot-sep">·</span> Independent project</div>
+            <div class="project-cta">View Repository</div>
+          </div>
+          <h3 class="project-title">A <em>Bayesian</em> Treatment of Survival Analysis</h3>
+          <p class="project-desc">
+            An independent implementation of <strong>Bayesian methods for time-to-event analysis</strong>, developed as a deliberate counterpart to the dominant frequentist toolkit. The project works through parametric survival models under a Bayesian framework — prior specification, posterior inference via MCMC, and posterior predictive checks — and examines how Bayesian estimates handle censoring, small samples, and the incorporation of historical information. The aim is both pedagogical and applied: to make the case that for medical and clinical-trial contexts, where decisions are costly and prior evidence is real, the Bayesian framework offers genuine inferential advantages over likelihood-based alternatives.
+          </p>
+          <div class="stack">
+            <span class="stack-item">Bayesian inference</span>
+            <span class="stack-item">MCMC</span>
+            <span class="stack-item">Survival analysis</span>
+            <span class="stack-item">Censored data</span>
+            <span class="stack-item">Clinical trials</span>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · QUOTE -->
+  <section class="quote-section" id="quote">
+    <div class="reveal">
+      <div class="quote-ornament">❦</div>
+      <div class="quote-text"><span class="first-letter">P</span>auca sed matura.</div>
+      <div class="quote-translation">— Few, but ripe.</div>
+      <div class="quote-rule"></div>
+      <div class="quote-attr">Carl Friedrich Gauss <span class="years">1777 — 1855</span></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // === Scroll progress bar ===
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.width = `${(scrolled / total) * 100}%`;
+  });
+
+  // === Reveal sections on scroll ===
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // === Falling leaves trail (default cursor stays) ===
+  (function initLeafTrail() {
+    const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (isTouch || reducedMotion) return;
+
+    const leafColors = [
+      '#7a1f2b',  // oxblood
+      '#a85a2e',  // burnt orange
+      '#b8935a',  // gold
+      '#8b3a16',  // sienna
+      '#6b4423',  // dark brown
+      '#9c4a1f',  // burnt sienna
+    ];
+
+    let lastSpawn = 0;
+    const SPAWN_INTERVAL_MS = 90;
+
+    document.addEventListener('mousemove', (e) => {
+      const now = performance.now();
+      if (now - lastSpawn > SPAWN_INTERVAL_MS) {
+        spawnLeaf(e.clientX, e.clientY);
+        lastSpawn = now;
+      }
+    });
+
+    function spawnLeaf(x, y) {
+      const leaf = document.createElement('div');
+      leaf.className = 'falling-leaf';
+
+      const color = leafColors[Math.floor(Math.random() * leafColors.length)];
+      const size = 12 + Math.random() * 12;            // 12–24 px
+      const drift = (Math.random() - 0.5) * 320;       // ±160 px horizontal
+      const rot = (Math.random() - 0.5) * 1080;        // ±540 deg
+      const dur = 3.5 + Math.random() * 2.5;           // 3.5–6 s
+      const initialRot = Math.random() * 360;
+
+      leaf.style.left = x + 'px';
+      leaf.style.top = y + 'px';
+      leaf.style.width = size + 'px';
+      leaf.style.height = size + 'px';
+      leaf.style.marginLeft = (-size / 2) + 'px';
+      leaf.style.marginTop = (-size / 2) + 'px';
+      leaf.style.color = color;
+      leaf.style.setProperty('--drift', drift + 'px');
+      leaf.style.setProperty('--rot', (initialRot + rot) + 'deg');
+      leaf.style.setProperty('--dur', dur + 's');
+
+      leaf.innerHTML = '<svg style="transform: rotate(' + initialRot + 'deg)"><use href="#leaf"/></svg>';
+
+      document.body.appendChild(leaf);
+      setTimeout(() => leaf.remove(), dur * 1000 + 100);
+    }
+  })();
+</script>
+
+</body>
+</html>
