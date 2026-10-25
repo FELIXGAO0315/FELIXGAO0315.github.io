@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yuan Gao — Duke University</title>
-<meta name="description" content="Personal homepage of Yuan Gao, Master's student in Statistical Science at Duke University.">
+<meta name="description" content="Personal homepage of Yuan Gao, Master's student in Statistical Science at Duke University, working on agentic AI for mathematical discovery and formal theorem proving in Lean 4.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -370,6 +370,80 @@ section { padding: 120px 0; position: relative; }
   transform: translateY(-3px);
 }
 
+/* PUBLICATIONS */
+.pubs { display: flex; flex-direction: column; gap: 20px; max-width: 900px; }
+.pub {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--oxblood);
+  border-radius: 10px;
+  padding: 32px 40px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(2px);
+}
+.pub-venue {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--oxblood);
+  border: 1px solid rgba(122, 31, 43, 0.4);
+  border-radius: 999px;
+  padding: 4px 12px;
+  margin-bottom: 16px;
+}
+.pub-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.pub-authors {
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+.pub-authors strong { color: var(--ink); font-weight: 600; }
+.pub-desc {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.65;
+  margin-bottom: 20px;
+  max-width: 760px;
+}
+.pub-desc strong { color: var(--ink); font-weight: 500; }
+
+/* EXPERIENCE (non-link cards) */
+.exp-list {
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 22px;
+  max-width: 780px;
+}
+.exp-list li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 8px;
+}
+.exp-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+}
+.exp-list strong { color: var(--ink); font-weight: 500; }
+.project-with {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin: -6px 0 16px;
+  font-style: italic;
+}
+div.project:hover { transform: translateY(-2px); }
+
 .pub-empty {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -560,6 +634,7 @@ section { padding: 120px 0; position: relative; }
   .project { padding: 28px 24px; }
   .project-head { flex-direction: column; align-items: flex-start; }
   .pub-empty { padding: 40px 24px; }
+  .pub { padding: 26px 22px; }
   .quote-section { padding: 100px 0 120px; }
   .timeline { margin-top: 48px; }
   .stop .year { font-size: 0.95rem; }
@@ -605,6 +680,7 @@ section { padding: 120px 0; position: relative; }
   <a href="#about">About</a>
   <a href="#research">Research</a>
   <a href="#publications">Publications</a>
+  <a href="#experience">Experience</a>
   <a href="#projects">Projects</a>
 </nav>
 
@@ -612,7 +688,7 @@ section { padding: 120px 0; position: relative; }
 
   <!-- 1 · HERO -->
   <header class="hero" id="about">
-    <div class="hero-eyebrow">Researcher · last updated April 2026</div>
+    <div class="hero-eyebrow">Researcher · last updated October 2026</div>
 
     <h1>
       <span class="word" style="animation-delay:0.4s">Yuan</span>
@@ -620,8 +696,8 @@ section { padding: 120px 0; position: relative; }
     </h1>
 
     <p class="hero-meta">
-      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>, working at the intersection of machine learning, agentic AI systems, and applied statistics.
-      Reach me at <a href="mailto:yuan.gao2@duke.edu">yuan.gao2@duke.edu</a>.
+      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>. I build autonomous agent systems for mathematical discovery — agents that propose conjectures, search for counterexamples, and write machine-checked proofs in <strong>Lean 4</strong>.
+      Reach me at <a href="mailto:yuan.gao2@duke.edu">yuan.gao2@duke.edu</a> · <a href="https://github.com/FELIXGAO0315" target="_blank" rel="noopener">GitHub</a>.
     </p>
 
     <!-- Duke timeline / progress bar -->
@@ -630,17 +706,17 @@ section { padding: 120px 0; position: relative; }
       <div class="stops">
         <div class="track" aria-hidden="true"></div>
 
-        <div class="stop current">
-          <div class="here-pointer">
-            current stage
-            <span class="arrow">↓</span>
-          </div>
+        <div class="stop">
           <div class="dot"></div>
           <div class="year">2025</div>
           <div class="label">First Year</div>
         </div>
 
-        <div class="stop">
+        <div class="stop current">
+          <div class="here-pointer">
+            current stage
+            <span class="arrow">↓</span>
+          </div>
           <div class="dot"></div>
           <div class="year">2026</div>
           <div class="label">Second Year</div>
@@ -663,17 +739,17 @@ section { padding: 120px 0; position: relative; }
       <h2 class="section-title">What I work <em>on.</em></h2>
 
       <p class="interests-text">
-        My interests sit at the intersection of <em>machine learning</em> and <em>agentic AI systems</em>. I build LLM-driven agents and reinforcement-learning pipelines that act as <em>tools for reasoning</em> — particularly for problems in mathematics and computer science where structured search, verification, and tool-use matter. More recently, I've turned toward applications of AI in <em>biostatistics</em> and <em>clinical trial design</em>, where principled inference and modern modeling can meet to inform real medical decisions.
+        I design <em>agentic AI systems for scientific discovery</em> — autonomous pipelines in which LLM agents propose, test, and verify ideas with minimal human input. My current testbed is <em>mathematics</em>: a closed loop of agents that generates conjectures on convex 3-polytopes, refutes them with witness-checked counterexamples, and proves the survivors in <em>Lean 4</em>. Because every accepted result is machine-checked, the same loop can also produce verified training data for theorem-proving models, which is where <em>reinforcement learning</em> and LLM post-training come in.
       </p>
 
       <div class="tags">
         <span class="tag">Agentic AI</span>
-        <span class="tag">Large Language Models</span>
+        <span class="tag">AI for Scientific Discovery</span>
+        <span class="tag">AI for Mathematics</span>
+        <span class="tag">Neural Theorem Proving</span>
+        <span class="tag">Lean 4 &amp; Formal Verification</span>
         <span class="tag">Reinforcement Learning</span>
-        <span class="tag">AI for Math &amp; CS</span>
-        <span class="tag">Biostatistics</span>
-        <span class="tag">Clinical Trial Design</span>
-        <span class="tag">Bayesian Methods</span>
+        <span class="tag">Large Language Models</span>
       </div>
     </div>
   </section>
@@ -684,19 +760,119 @@ section { padding: 120px 0; position: relative; }
       <div class="section-num">— 02 / Publications</div>
       <h2 class="section-title">Selected <em>papers.</em></h2>
 
-      <div class="pub-empty">
-        <div class="glyph">❦</div>
-        <div class="line1">In preparation.</div>
-        <div class="line2">Manuscripts are in progress. This section will be updated as work moves through review.</div>
+      <div class="pubs">
+        <article class="pub">
+          <div class="pub-venue">Submitted to ICLR 2027</div>
+          <h3 class="pub-title">A Closed-Loop System of 3 Mathematical Agents: Conjecturer, Refuter, and Prover</h3>
+          <p class="pub-authors">Jesús A. De Loera, Jillian Eddy, Ethan X. Fang, <strong>Yuan Gao</strong>, Junwei Lu <span style="font-style:italic">(alphabetical order)</span></p>
+          <p class="pub-desc">
+            A closed-loop autonomous system for mathematical discovery in polyhedral combinatorics. After initialization, a single command runs <strong>conjecture generation</strong>, <strong>counterexample search</strong>, and <strong>formal proving in Lean 4</strong>, then feeds the outcomes into the next generation with no human intervention between stages. Proposal, verification, and learning are kept separate: feedback can steer the conjecture generator, but never the counterexample validator or the proof-acceptance gates. The campaign has produced <strong>204 witness-verified refutations</strong>, <strong>four end-to-end machine-proved conjectures</strong> with no <code>sorry</code>, and <strong>three open conjectures</strong>, each kept as a reusable computational or formal artifact.
+          </p>
+          <div class="stack">
+            <span class="stack-item">Multi-agent LLMs</span>
+            <span class="stack-item">Lean 4</span>
+            <span class="stack-item">Automated theorem proving</span>
+            <span class="stack-item">Counterexample search</span>
+            <span class="stack-item">Polyhedral combinatorics</span>
+          </div>
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- 4 · PROJECTS -->
+  <!-- 4 · RESEARCH EXPERIENCE -->
+  <section id="experience">
+    <div class="reveal">
+      <div class="section-num">— 03 / Research Experience</div>
+      <h2 class="section-title">Where I've <em>worked.</em></h2>
+
+      <div class="projects">
+
+        <div class="project">
+          <div class="project-head">
+            <div class="project-meta">09/2026 – present <span class="dot-sep">·</span> Duke University</div>
+          </div>
+          <h3 class="project-title">Synthetic Theorem Generation for <em>Neural Theorem Proving</em> in Lean 4</h3>
+          <p class="project-with">with Prof. Ethan X. Fang and Prof. Junwei Lu</p>
+          <ul class="exp-list">
+            <li>Designing an <strong>AlphaGeometry-inspired engine</strong> that generates an unbounded stream of Lean 4–verified theorems in 3-polytope combinatorics and graph theory as training data for LLM theorem provers.</li>
+            <li>Built a <strong>forward-chaining deduction engine</strong> (linear combination, integer rounding, case splitting) over a closed axiom base; every theorem is checked by the Lean 4 kernel, so all data is true and machine-proved.</li>
+            <li>Proved theorems are reused as premises for later ones, so difficulty compounds; each theorem is scored for interestingness and proof-length hardness to build training curricula.</li>
+            <li>Extending the axiom base to general graph theory on Mathlib's <code>SimpleGraph</code> and packaging the generator as an <strong>open Lean RL environment</strong> for proving agents.</li>
+          </ul>
+          <div class="stack">
+            <span class="stack-item">Lean 4</span>
+            <span class="stack-item">Mathlib</span>
+            <span class="stack-item">Python</span>
+            <span class="stack-item">Synthetic data</span>
+            <span class="stack-item">RL environments</span>
+          </div>
+        </div>
+
+        <div class="project">
+          <div class="project-head">
+            <div class="project-meta">04/2026 – 09/2026 <span class="dot-sep">·</span> Duke University <span class="dot-sep">·</span> Submitted to ICLR 2027</div>
+          </div>
+          <h3 class="project-title">Autonomous <em>Formalization</em> of Polytope Conjectures in Lean 4</h3>
+          <p class="project-with">with Prof. Jesús A. De Loera, Prof. Ethan X. Fang, and Prof. Junwei Lu</p>
+          <ul class="exp-list">
+            <li>Architected the <strong>theorem-proving arm</strong> of the closed-loop system above: a nine-stage pipeline that turns machine-generated conjectures on simple 3-polytopes into verified Lean 4 proofs.</li>
+            <li>Decomposed each theorem into a <strong>dependency-aware proof DAG</strong> of typed lemma nodes, proved in parallel batches with content-hashed caching to stay stable across non-deterministic LLM runs.</li>
+            <li>Built a closed axiom base and a growing proof library for polyhedral results missing from Mathlib (Euler's formula, Barnette's bound), eliminating hallucinated lemma names.</li>
+            <li>Delivered end-to-end machine-verified proofs with <strong>zero <code>sorry</code></strong> and no human in the loop.</li>
+          </ul>
+          <div class="stack">
+            <span class="stack-item">Lean 4</span>
+            <span class="stack-item">LLM agents</span>
+            <span class="stack-item">Proof DAGs</span>
+            <span class="stack-item">Formal verification</span>
+          </div>
+        </div>
+
+        <div class="project">
+          <div class="project-head">
+            <div class="project-meta">01/2026 – 05/2026 <span class="dot-sep">·</span> Duke University</div>
+          </div>
+          <h3 class="project-title">AI-Driven <em>Counterexample Discovery</em> for Polytope Conjectures</h3>
+          <ul class="exp-list">
+            <li>Framed counterexample search for machine-generated (TxGraffiti) conjectures on simple 3-polytopes as a <strong>sequential decision process</strong> solved by a PPO agent — the search arm of the same closed-loop system.</li>
+            <li>Designed the action space as local face-preserving graph operations (e.g., Y→Δ insertion) under face-type constraints, with soft-constraint reward shaping toward valid extremal constructions.</li>
+            <li>Implemented a <strong>graph-based policy network</strong> with FiLM conditioning on the current polytope's structural features; verified counterexamples fed back into the Lean 4 pipeline.</li>
+          </ul>
+          <div class="stack">
+            <span class="stack-item">PPO</span>
+            <span class="stack-item">PyTorch</span>
+            <span class="stack-item">Graph neural networks</span>
+            <span class="stack-item">Reward shaping</span>
+          </div>
+        </div>
+
+        <div class="project">
+          <div class="project-head">
+            <div class="project-meta">09/2026 – present <span class="dot-sep">·</span> Duke University <span class="dot-sep">·</span> Industry sponsor: GSK</div>
+          </div>
+          <h3 class="project-title">Graph-Based <em>Anomaly Detection</em> for Third-Party Risk</h3>
+          <ul class="exp-list">
+            <li>Building a graph-based detector for anomalous relationship patterns (shared addresses, approver concentration, dense multi-attribute clusters, bridge entities) among ~20,000 synthetic third-party vendors.</li>
+            <li>Constructing a <strong>temporal heterogeneous graph</strong> from operational tables, filtering on valid and observed time to prevent look-ahead leakage, and enriching it with beneficial-ownership data via entity resolution.</li>
+            <li>Measuring the value of relational structure through a <strong>staged ablation</strong> (record-only → rules → graph features → ownership), scored blind by the sponsor on Precision@k and Average Precision.</li>
+          </ul>
+          <div class="stack">
+            <span class="stack-item">Graph learning</span>
+            <span class="stack-item">Entity resolution</span>
+            <span class="stack-item">Python</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · PROJECTS -->
   <section id="projects">
     <div class="reveal">
-      <div class="section-num">— 03 / Projects</div>
-      <h2 class="section-title">Things I've <em>built.</em></h2>
+      <div class="section-num">— 04 / Projects</div>
+      <h2 class="section-title">Other things I've <em>built.</em></h2>
 
       <div class="projects">
 
@@ -717,25 +893,6 @@ section { padding: 120px 0; position: relative; }
             <span class="stack-item">MiniLM embeddings</span>
             <span class="stack-item">WordNet</span>
             <span class="stack-item">LLM-as-judge</span>
-          </div>
-        </a>
-
-        <a class="project" href="https://github.com/FELIXGAO0315/sp500-sector-multivariate" target="_blank" rel="noopener">
-          <div class="project-head">
-            <div class="project-meta">2026 <span class="dot-sep">·</span> STA-832 final project</div>
-            <div class="project-cta">View Repository</div>
-          </div>
-          <h3 class="project-title">Multivariate Analysis of <em>S&amp;P 500</em> Sector Returns &amp; Sparse CCA</h3>
-          <p class="project-desc">
-            A two-part study of the joint structure of equity sector returns. <strong>Part I</strong> applies <strong>Principal Component Analysis</strong> and <strong>Canonical Correlation Analysis</strong> to daily log-returns of the eleven S&amp;P 500 sector ETFs over 2018–2024, recovering the dominant factor structure and quantifying the linear coupling between cyclical and defensive sector groups, with pre/post-COVID robustness checks. <strong>Part II</strong> is a theoretical review of <strong>Sparse Canonical Correlation Analysis</strong> via the Penalized Matrix Decomposition framework — formulation, the coordinate-ascent algorithm with soft-thresholding, consistency and minimax results, and connections to sparse PCA, reduced-rank regression, the graphical lasso, and PLS.
-          </p>
-          <div class="stack">
-            <span class="stack-item">R</span>
-            <span class="stack-item">PCA</span>
-            <span class="stack-item">CCA</span>
-            <span class="stack-item">Sparse CCA</span>
-            <span class="stack-item">quantmod</span>
-            <span class="stack-item">ggplot2</span>
           </div>
         </a>
 
@@ -780,7 +937,7 @@ section { padding: 120px 0; position: relative; }
     </div>
   </section>
 
-  <!-- 5 · QUOTE -->
+  <!-- 6 · QUOTE -->
   <section class="quote-section" id="quote">
     <div class="reveal">
       <div class="quote-ornament">❦</div>
