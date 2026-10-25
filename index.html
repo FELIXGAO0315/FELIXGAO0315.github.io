@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yuan Gao — Duke University</title>
-<meta name="description" content="Personal homepage of Yuan Gao, Master's student in Statistical Science at Duke University, working on agentic AI for mathematical discovery and formal theorem proving in Lean 4.">
+<meta name="description" content="Personal homepage of Yuan Gao, Master's student in Statistical Science at Duke University, working on AI for specific fields including mathematics, biomedicine, and finance.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -354,6 +354,40 @@ section { padding: 120px 0; position: relative; }
   color: var(--ink);
 }
 .interests-text em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+.interests-text + .interests-text { margin-top: -20px; }
+
+.threads {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 44px;
+}
+.thread {
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 24px 24px 26px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(2px);
+}
+.thread-field {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.thread-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.thread-title em { font-style: italic; color: var(--oxblood); }
+.thread-desc { color: var(--ink-soft); font-size: 0.95rem; line-height: 1.6; }
+@media (max-width: 900px) { .threads { grid-template-columns: 1fr; } }
 
 .tags { display: flex; flex-wrap: wrap; gap: 12px; }
 .tag {
@@ -696,7 +730,7 @@ div.project:hover { transform: translateY(-2px); }
     </h1>
 
     <p class="hero-meta">
-      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>. I build autonomous agent systems for mathematical discovery — agents that propose conjectures, search for counterexamples, and write machine-checked proofs in <strong>Lean 4</strong>.
+      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>. I build AI systems for specific fields — <strong>mathematics</strong>, <strong>biomedicine</strong>, and <strong>finance</strong> — working on agentic pipelines, language-model training, and learning on graphs.
       Reach me at <a href="mailto:yuan.gao2@duke.edu">yuan.gao2@duke.edu</a> · <a href="https://github.com/FELIXGAO0315" target="_blank" rel="noopener">GitHub</a>.
     </p>
 
@@ -739,17 +773,40 @@ div.project:hover { transform: translateY(-2px); }
       <h2 class="section-title">What I work <em>on.</em></h2>
 
       <p class="interests-text">
-        I design <em>agentic AI systems for scientific discovery</em> — autonomous pipelines in which LLM agents propose, test, and verify ideas with minimal human input. My current testbed is <em>mathematics</em>: a closed loop of agents that generates conjectures on convex 3-polytopes, refutes them with witness-checked counterexamples, and proves the survivors in <em>Lean 4</em>. Because every accepted result is machine-checked, the same loop can also produce verified training data for theorem-proving models, which is where <em>reinforcement learning</em> and LLM post-training come in.
+        I'm interested in <em>AI for specific fields</em> — building systems that do real work inside a domain, not just answer questions about it. The domains I care about most are <em>mathematics</em>, <em>biomedicine</em>, and <em>finance</em>: each has its own data, its own rules for what counts as correct, and its own cost of being wrong.
+      </p>
+      <p class="interests-text">
+        Across them, I keep returning to three questions. How should <em>agentic systems</em> be designed so that models can propose, test, and check ideas on their own? How do <em>language models</em> actually learn, from pre-training through RL-based post-training? And how can <em>structure</em> — proofs, graphs, relationships between entities — make a model's output something an expert can trust?
       </p>
 
+      <div class="threads">
+        <div class="thread">
+          <div class="thread-field">Mathematics</div>
+          <h3 class="thread-title">Agents that <em>do</em> mathematics</h3>
+          <p class="thread-desc">A closed loop of conjecturer, refuter, and prover agents that generates conjectures, searches for counterexamples, and proves the survivors in Lean 4 (submitted to ICLR 2027). I am now turning its verified output into synthetic training data for theorem-proving models.</p>
+        </div>
+        <div class="thread">
+          <div class="thread-field">Language models</div>
+          <h3 class="thread-title">Training a <em>nano-LLM</em></h3>
+          <p class="thread-desc">I am currently training a small language model end to end, to understand first-hand how pre-training, data, and post-training choices shape what a model can do — the foundation every domain system sits on.</p>
+        </div>
+        <div class="thread">
+          <div class="thread-field">Biomedicine &amp; industry</div>
+          <h3 class="thread-title">Graphs for <em>risk</em> and health</h3>
+          <p class="thread-desc">With GSK as industry sponsor, I am building a graph-based detector for anomalous third-party relationships, measuring how much relational structure adds over record-level rules. Earlier, I built Bayesian survival models for lung-cancer data.</p>
+        </div>
+      </div>
+
       <div class="tags">
-        <span class="tag">Agentic AI</span>
-        <span class="tag">AI for Scientific Discovery</span>
+        <span class="tag">AI for Science</span>
         <span class="tag">AI for Mathematics</span>
-        <span class="tag">Neural Theorem Proving</span>
-        <span class="tag">Lean 4 &amp; Formal Verification</span>
+        <span class="tag">Biomedical AI</span>
+        <span class="tag">AI for Finance</span>
+        <span class="tag">Agentic AI</span>
+        <span class="tag">LLM Training</span>
         <span class="tag">Reinforcement Learning</span>
-        <span class="tag">Large Language Models</span>
+        <span class="tag">Graph Learning</span>
+        <span class="tag">Lean 4 &amp; Formal Verification</span>
       </div>
     </div>
   </section>
