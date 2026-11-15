@@ -358,7 +358,7 @@ section { padding: 120px 0; position: relative; }
 
 .threads {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 18px;
   margin-bottom: 44px;
 }
@@ -722,7 +722,7 @@ div.project:hover { transform: translateY(-2px); }
 
   <!-- 1 · HERO -->
   <header class="hero" id="about">
-    <div class="hero-eyebrow">Researcher · last updated October 2026</div>
+    <div class="hero-eyebrow">Researcher · last updated November 2026</div>
 
     <h1>
       <span class="word" style="animation-delay:0.4s">Yuan</span>
@@ -730,7 +730,7 @@ div.project:hover { transform: translateY(-2px); }
     </h1>
 
     <p class="hero-meta">
-      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>. I build AI systems for specific fields — <strong>mathematics</strong>, <strong>biomedicine</strong>, and <strong>finance</strong> — working on agentic pipelines, language-model training, and learning on graphs.
+      <strong>Master's Student in Statistical Science</strong> at <strong>Duke University</strong>. I build <strong>multi-agent AI systems</strong> for specific fields — <strong>mathematics</strong>, <strong>insurance and finance</strong>, and <strong>biomedicine</strong> — and use mathematics to train better models.
       Reach me at <a href="mailto:yuan.gao2@duke.edu">yuan.gao2@duke.edu</a> · <a href="https://github.com/FELIXGAO0315" target="_blank" rel="noopener">GitHub</a>.
     </p>
 
@@ -773,40 +773,45 @@ div.project:hover { transform: translateY(-2px); }
       <h2 class="section-title">What I work <em>on.</em></h2>
 
       <p class="interests-text">
-        I'm interested in <em>AI for specific fields</em> — building systems that do real work inside a domain, not just answer questions about it. The domains I care about most are <em>mathematics</em>, <em>biomedicine</em>, and <em>finance</em>: each has its own data, its own rules for what counts as correct, and its own cost of being wrong.
+        I'm interested in <em>AI for specific fields</em> — multi-agent systems that do real work inside a domain, not just answer questions about it. The domains I care about most are <em>mathematics</em>, <em>insurance and finance</em>, and <em>biomedicine</em>: each has its own data, its own rules for what counts as correct, and its own cost of being wrong.
       </p>
       <p class="interests-text">
-        Across them, I keep returning to three questions. How should <em>agentic systems</em> be designed so that models can propose, test, and check ideas on their own? How do <em>language models</em> actually learn, from pre-training through RL-based post-training? And how can <em>structure</em> — proofs, graphs, relationships between entities — make a model's output something an expert can trust?
+        My work runs in two directions. In <em>AI for X</em>, I design agent systems that propose, test, and verify ideas, and carry the same design from one field to the next. In <em>math for AI</em>, I go the other way: I use mathematics to generate large amounts of reliable, verified data and train language models on it. What connects them is <em>verification</em> — results a domain expert can check and trust.
       </p>
 
       <div class="threads">
         <div class="thread">
-          <div class="thread-field">Mathematics</div>
+          <div class="thread-field">AI for X · Mathematics</div>
           <h3 class="thread-title">Agents that <em>do</em> mathematics</h3>
-          <p class="thread-desc">A closed loop of conjecturer, refuter, and prover agents that generates conjectures, searches for counterexamples, and proves the survivors in Lean 4 (submitted to ICLR 2027). I am now turning its verified output into synthetic training data for theorem-proving models.</p>
+          <p class="thread-desc">A closed loop of conjecturer, refuter, and prover agents that generates conjectures on convex polytopes, searches for counterexamples, and verifies the survivors — submitted to ICLR 2027.</p>
         </div>
         <div class="thread">
-          <div class="thread-field">Language models</div>
-          <h3 class="thread-title">Training a <em>nano-LLM</em></h3>
-          <p class="thread-desc">I am currently training a small language model end to end, to understand first-hand how pre-training, data, and post-training choices shape what a model can do — the foundation every domain system sits on.</p>
+          <div class="thread-field">AI for X · Insurance</div>
+          <h3 class="thread-title">Multi-agent systems for <em>insurance</em></h3>
+          <p class="thread-desc">A new project with Prof. Ethan X. Fang and Prof. Zifeng Zhao (Notre Dame), taking the same multi-agent design into insurance and risk.</p>
         </div>
         <div class="thread">
-          <div class="thread-field">Biomedicine &amp; industry</div>
-          <h3 class="thread-title">Graphs for <em>risk</em> and health</h3>
-          <p class="thread-desc">With GSK as industry sponsor, I am building a graph-based detector for anomalous third-party relationships, measuring how much relational structure adds over record-level rules. Earlier, I built Bayesian survival models for lung-cancer data.</p>
+          <div class="thread-field">AI for X · Risk (industry)</div>
+          <h3 class="thread-title">Graphs for third-party <em>risk</em></h3>
+          <p class="thread-desc">A GSK-sponsored graph model that flags anomalous vendor relationships. The record-level and rule-based stages are complete; the graph and ownership stages are on their third model version, with better case ranking and more accurate typology attribution and tags.</p>
+        </div>
+        <div class="thread">
+          <div class="thread-field">Math for AI</div>
+          <h3 class="thread-title">Teaching a <em>nano-LLM</em> graph theory</h3>
+          <p class="thread-desc">With Prof. Fang and Prof. Junwei Lu: an upstream generator produces graph-theory conjectures with diverse statements and proofs, and a nano-scale LLM trained on them downstream learns varied solving strategies — with open problems such as Barnette's conjecture as the long-term goal.</p>
         </div>
       </div>
 
       <div class="tags">
+        <span class="tag">Multi-Agent Systems</span>
         <span class="tag">AI for Science</span>
         <span class="tag">AI for Mathematics</span>
+        <span class="tag">AI for Insurance &amp; Finance</span>
         <span class="tag">Biomedical AI</span>
-        <span class="tag">AI for Finance</span>
-        <span class="tag">Agentic AI</span>
+        <span class="tag">Math for AI</span>
         <span class="tag">LLM Training</span>
         <span class="tag">Reinforcement Learning</span>
         <span class="tag">Graph Learning</span>
-        <span class="tag">Lean 4 &amp; Formal Verification</span>
       </div>
     </div>
   </section>
@@ -849,13 +854,12 @@ div.project:hover { transform: translateY(-2px); }
           <div class="project-head">
             <div class="project-meta">09/2026 – present <span class="dot-sep">·</span> Duke University</div>
           </div>
-          <h3 class="project-title">Synthetic Theorem Generation for <em>Neural Theorem Proving</em> in Lean 4</h3>
+          <h3 class="project-title">Synthetic Conjecture Generation and <em>Nano-LLM</em> Training for Graph Theory</h3>
           <p class="project-with">with Prof. Ethan X. Fang and Prof. Junwei Lu</p>
           <ul class="exp-list">
-            <li>Designing an <strong>AlphaGeometry-inspired engine</strong> that generates an unbounded stream of Lean 4–verified theorems in 3-polytope combinatorics and graph theory as training data for LLM theorem provers.</li>
-            <li>Built a <strong>forward-chaining deduction engine</strong> (linear combination, integer rounding, case splitting) over a closed axiom base; every theorem is checked by the Lean 4 kernel, so all data is true and machine-proved.</li>
-            <li>Proved theorems are reused as premises for later ones, so difficulty compounds; each theorem is scored for interestingness and proof-length hardness to build training curricula.</li>
-            <li>Extending the axiom base to general graph theory on Mathlib's <code>SimpleGraph</code> and packaging the generator as an <strong>open Lean RL environment</strong> for proving agents.</li>
+            <li><strong>Upstream:</strong> extending an AlphaGeometry-inspired engine that generates large numbers of graph-theory and 3-polytope conjectures with <strong>diverse statement forms and diverse proofs</strong>, each machine-verified.</li>
+            <li>Built a <strong>forward-chaining deduction engine</strong> (linear combination, integer rounding, case splitting) over a closed axiom base; proved results are reused as premises, so difficulty compounds.</li>
+            <li><strong>Downstream:</strong> training a <strong>nano-scale LLM</strong> on this data to learn varied strategies for solving graph-theory problems, with the long-term goal of tackling open problems such as Barnette's conjecture.</li>
           </ul>
           <div class="stack">
             <span class="stack-item">Lean 4</span>
@@ -913,6 +917,7 @@ div.project:hover { transform: translateY(-2px); }
             <li>Building a graph-based detector for anomalous relationship patterns (shared addresses, approver concentration, dense multi-attribute clusters, bridge entities) among ~20,000 synthetic third-party vendors.</li>
             <li>Constructing a <strong>temporal heterogeneous graph</strong> from operational tables, filtering on valid and observed time to prevent look-ahead leakage, and enriching it with beneficial-ownership data via entity resolution.</li>
             <li>Measuring the value of relational structure through a <strong>staged ablation</strong> (record-only → rules → graph features → ownership), scored blind by the sponsor on Precision@k and Average Precision.</li>
+            <li>Completed the record-level and rule-based stages; the graph-feature and ownership models are now on their <strong>third version</strong>, with better case ranking and more accurate typology attribution and tagging.</li>
           </ul>
           <div class="stack">
             <span class="stack-item">Graph learning</span>
