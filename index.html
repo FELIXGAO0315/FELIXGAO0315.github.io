@@ -43,39 +43,40 @@
   .me { font-weight: bold; }
   .note { color: #666; font-size: 15px; }
   footer { margin-top: 48px; color: #888; font-size: 14px; }
-  .name-row { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
-  .name-row h1 { margin: 0; }
-  .d-mark {
-    width: 40px; height: 40px;
-    background: #012169; color: #fff;
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: Georgia, "Times New Roman", serif;
-    font-weight: bold; font-size: 26px; line-height: 1;
-    flex-shrink: 0;
-  }
+  .top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; margin-bottom: 18px; }
+  .top h1 { margin: 0; }
+  nav a { margin-left: 18px; font-size: 16px; }
+  nav a:first-child { margin-left: 0; }
+  .contact .label { color: #222; }
+  html { scroll-behavior: smooth; }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <div class="name-row">
-    <div class="d-mark" aria-hidden="true">D</div>
+  <div class="top">
     <h1>Yuan (Felix) Gao</h1>
+    <nav>
+      <a href="#research">Research</a>
+      <a href="#projects">Projects</a>
+      <a href="#education">Education</a>
+      <a href="https://github.com/FELIXGAO0315">GitHub</a>
+    </nav>
   </div>
+
   <div class="contact">
-    Master of Statistical Science, Duke University<br>
-    Email: yuan.gao2 [at] duke [dot] edu<br>
-    <a href="https://github.com/FELIXGAO0315">GitHub</a>
+    <span class="label">Contact:</span><br>
+    yuan.gao2 AT duke.edu
   </div>
 
   <p>
-    I am a Master's student in Statistical Science at Duke University, working with
+    I am a Master's student in the <a href="https://stat.duke.edu/">Department of Statistical Science</a> at
+    <a href="https://duke.edu/">Duke University</a>, working with
     Prof. <a href="https://ethanfangduke.github.io/homepage/">Ethan X. Fang</a> (Duke),
     Prof. <a href="https://junwei-lu.github.io/">Junwei Lu</a> (Harvard), and
     Prof. <a href="https://www.math.ucdavis.edu/~deloera/">Jesús A. De Loera</a> (UC Davis).
     I received my B.Sc. in Mathematics with Finance with First Class Honours from the
-    University of Liverpool, through the 2+2 program with Xi'an Jiaotong-Liverpool University.
+    <a href="https://www.liverpool.ac.uk/">University of Liverpool</a>, through the 2+2 program with <a href="https://www.xjtlu.edu.cn/en">Xi'an Jiaotong-Liverpool University</a>.
   </p>
   <p>
     My research focuses on multi-agent AI systems for scientific discovery. I build systems in which
@@ -84,7 +85,7 @@
     methods into biomedical research.
   </p>
 
-  <h2>Manuscripts</h2>
+  <h2 id="manuscripts">Manuscripts</h2>
 
   <div class="entry">
     <div class="title">A Closed-Loop System of 3 Mathematical Agents: Conjecturer, Refuter, and Prover</div>
@@ -92,7 +93,7 @@
     <div class="meta">Manuscript, 2026.</div>
   </div>
 
-  <h2>Research Experience</h2>
+  <h2 id="research">Research Experience</h2>
 
   <div class="entry">
     <div class="title">Synthetic Conjecture Generation and Nano-LLM Training for Graph Theory</div>
@@ -139,7 +140,7 @@
     </ul>
   </div>
 
-  <h2>Projects</h2>
+  <h2 id="projects">Projects</h2>
 
   <div class="entry">
     <div class="title">Online Mixture of Autoregressive Experts</div>
@@ -159,7 +160,7 @@
     <div>A comparison of gradient boosting, neural network, and regularized regression models for predicting damage levels of 260,000 buildings after the 2015 Nepal earthquake.</div>
   </div>
 
-  <h2>Education</h2>
+  <h2 id="education">Education</h2>
 
   <div class="entry">
     <div class="title">Duke University</div>
