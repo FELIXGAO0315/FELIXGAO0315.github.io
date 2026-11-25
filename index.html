@@ -155,8 +155,12 @@
 
   <div class="entry">
     <div class="title">Online Mixture of Autoregressive Experts</div>
-    <div class="meta">ECE 685D Introduction to Deep Learning project, Duke University, 2026, in progress. [<a href="https://github.com/FELIXGAO0315/Online-mixture-of-autoregressive-experts">Code</a>]</div>
-    <div>An online forecaster for vector time series that combines autoregressive experts, re-fitted at every step with the Levinson-Durbin recursion, through a gate that starts from the fixed-share rule of Ding, Zhou and Tarokh and learns a residual correction online.</div>
+    <div class="meta">ECE 685D Introduction to Deep Learning project, Duke University, 2026. [<a href="https://github.com/FELIXGAO0315/Online-mixture-of-autoregressive-experts">Code</a>]</div>
+    <ul>
+      <li>Built an online forecaster for vector time series that combines VAR experts of orders 1 to L, each re-fitted at every step from exponentially weighted autocovariances with the multichannel Levinson-Durbin recursion.</li>
+      <li>Designed a softmax gate that starts exactly from the fixed-share rule of Ding, Zhou, and Tarokh and learns a zero-initialized MLP residual online, with weight decay pulling it back toward the fixed rule.</li>
+      <li>Evaluated strictly online on synthetic regime-switching data, ETTh1, and sunspots. On ETTh1 the learned gate was the best causal method (1.03% lower cumulative MSE than the best single expert), and adding non-AR experts cut its MSE by a further 8%.</li>
+    </ul>
   </div>
 
   <div class="entry">
