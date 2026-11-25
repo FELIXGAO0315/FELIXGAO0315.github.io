@@ -138,9 +138,10 @@
     <div class="title">Graph-Based Anomaly Detection for Third-Party Risk</div>
     <div class="meta">Duke University capstone sponsored by GSK, 09/2026 to present.</div>
     <ul>
-      <li>Building a graph model that detects 14 typologies of anomalous relationship patterns, such as shared addresses, sponsor-approver coupling, layered ownership, and bridge entities, among about 21,000 synthetic third-party vendor records, and returns a ranked list of review cases.</li>
-      <li>Building a temporal heterogeneous graph as of each period end, using only information observed by that date to prevent look-ahead leakage, with entity resolution across registry IDs and fuzzy names.</li>
-      <li>Took over model development after the team's first version and built every later version, through v2.0, which was rebuilt on validation cases released by the sponsor with the overfitting risk of every change recorded. The sponsor scores each submission blind against held-out labels.</li>
+      <li>Building a temporal heterogeneous graph model that detects 14 typologies of anomalous relationship patterns, such as shared addresses, sponsor-approver coupling, layered ownership, and bridge entities, among about 21,000 synthetic third-party vendor records. The graph uses only information observed by each period end, and the model returns a ranked list of review cases.</li>
+      <li>Built the vendor-level baseline and the relationship-feature layer. Relationship features alone tripled test AP over the vendor-level baseline.</li>
+      <li>Took over the graph model after the team's first version and built every later version. v2.0 was rebuilt on 43 validation cases released by the sponsor, with a period filter, cross-border corridor and sponsor-burst detectors, and chance-based down-ranking of noisy findings, and the overfitting risk of every change recorded.</li>
+      <li>v2.0 raised validation AP from 0.31 to 0.42. In the sponsor's blind test scoring it reached precision of 0.90 in the top 10, 0.68 in the top 25, and 0.50 in the top 50, with typology accuracy of 0.87, up from 0.50, 0.48, 0.38, and 0.79 in the first submission.</li>
     </ul>
   </div>
 
