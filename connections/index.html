@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections · Yuan Gao</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yellow: #f9df6d;
+            --yellow-text: #5a4e1a;
+            --green: #a0c35a;
+            --green-text: #2a3d0f;
+            --blue: #b0c4ef;
+            --blue-text: #1a2a4a;
+            --purple: #ba81c5;
+            --purple-text: #3a1a42;
+            --bg: #fafafa;
+            --card-bg: #efefe6;
+            --card-hover: #ddddd0;
+            --card-selected: #5a594e;
+            --card-selected-text: #fff;
+            --text: #1a1a1a;
+            --text-muted: #787878;
+            --wrong-shake: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Libre Franklin', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text);
+        }
+
+        .header {
+            padding: 32px 20px 8px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .game-area {
+            width: 100%;
+            max-width: 600px;
+            padding: 16px 20px;
+        }
+
+        /* Solved groups stack at top */
+        .solved-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .solved-row {
+            border-radius: 10px;
+            padding: 16px 20px;
+            text-align: center;
+            animation: solvedReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        @keyframes solvedReveal {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .solved-row.yellow { background: var(--yellow); color: var(--yellow-text); }
+        .solved-row.green { background: var(--green); color: var(--green-text); }
+        .solved-row.blue { background: var(--blue); color: var(--blue-text); }
+        .solved-row.purple { background: var(--purple); color: var(--purple-text); }
+
+        .solved-label {
+            font-weight: 800;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .solved-words {
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        /* Word grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .cell {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            padding: 20px 6px;
+            font-family: 'Libre Franklin', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            color: var(--text);
+            min-height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+
+        .cell:hover:not(.selected):not(.disabled) {
+            background: var(--card-hover);
+        }
+
+        .cell.selected {
+            background: var(--card-selected);
+            color: var(--card-selected-text);
+            transform: scale(0.97);
+        }
+
+        .cell.disabled {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .cell.wrong {
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 8px 0 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'Libre Franklin', sans-serif;
+            padding: 12px 28px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--text);
+            color: var(--text);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--text);
+            color: white;
+        }
+
+        .btn-filled {
+            background: var(--text);
+            border: 2px solid var(--text);
+            color: white;
+        }
+
+        .btn-filled:hover:not(:disabled) {
+            background: #333;
+        }
+
+        .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* Mistakes tracker */
+        .mistakes {
+            text-align: center;
+            padding: 12px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .mistake-dots {
+            display: inline-flex;
+            gap: 6px;
+            margin-left: 8px;
+        }
+
+        .mistake-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .mistake-dot.used {
+            background: #ccc;
+            transform: scale(0.7);
+        }
+
+        /* Feedback toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-80px);
+            background: var(--text);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 28px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* New game overlay */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .overlay-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 36px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .overlay.show .overlay-card {
+            transform: scale(1);
+        }
+
+        .overlay-card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .overlay-card p {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+
+        .overlay-card .btn {
+            min-width: 160px;
+        }
+
+        /* Results screen */
+        .results {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .results h2 {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .results p {
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* Loading state */
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e0e0e0;
+            border-top-color: var(--text);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 40px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .cell { padding: 16px 4px; font-size: 0.75rem; min-height: 54px; }
+            .game-area { padding: 12px 12px; }
+            .header h1 { font-size: 1.6rem; }
+        }
+        .note { font-size: 0.8rem !important; margin-top: 6px; }
+        .note a { color: inherit; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Connections</h1>
+        <p>Create four groups of four</p>
+        <p class="note">Puzzles generated by my <a href="https://github.com/FELIXGAO0315/Connections-Generating-Agent-System">multi-agent system</a>, drawn from a 100-puzzle evaluation sample. <span id="pzNo"></span></p>
+        <p class="note"><a href="../">&larr; Back to homepage</a></p>
+    </div>
+
+    <div class="game-area">
+        <div class="solved-groups" id="solvedGroups"></div>
+        <div class="grid" id="grid"></div>
+
+        <div class="mistakes" id="mistakes" style="display:none;">
+            Mistakes remaining:
+            <span class="mistake-dots" id="mistakeDots"></span>
+        </div>
+
+        <div class="controls" id="controls" style="display:none;">
+            <button class="btn btn-outline" id="shuffleBtn" onclick="shuffleWords()">Shuffle</button>
+            <button class="btn btn-outline" id="deselectBtn" onclick="deselectAll()" disabled>Deselect All</button>
+            <button class="btn btn-filled" id="submitBtn" onclick="submitGuess()" disabled>Submit</button>
+        </div>
+
+        <div class="results" id="results" style="display:none;"></div>
+
+        <div style="text-align:center; padding: 20px 0;">
+            <button class="btn btn-filled" id="newGameBtn" onclick="newGame()">New Puzzle</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== GAME STATE =====
+        let puzzle = null;
+        let remainingWords = [];
+        let selectedWords = new Set();
+        let solvedGroups = [];
+        let mistakesLeft = 4;
+        let gameOver = false;
+        let guessHistory = [];
+
+        const LEVEL_COLORS = { 0: 'yellow', 1: 'green', 2: 'blue', 3: 'purple' };
+        const LEVEL_NAMES = { 0: 'Yellow', 1: 'Green', 2: 'Blue', 3: 'Purple' };
+
+        // ===== LOCAL PUZZLE DATA (static version, no server needed) =====
+        const PUZZLES = [{"id":"20260420-211211-632039","words":["EXIT","DEFENSE","INSULATION","COMPACT","RELEASE","TABLE","GOING","SQUEEZE","CONTRACT","COMPRESS","ABOUT","CHARGE","HEAD","TRIP","LOSS","IMMUNIZATION"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF PROTECTION","words":["DEFENSE","INSULATION","IMMUNIZATION","CHARGE"],"level":1},{"label":"TYPES OF DEATH","words":["EXIT","RELEASE","GOING","LOSS"],"level":2},{"label":"ROUND ___","words":["ABOUT","TABLE","TRIP","HEAD"],"level":3}]},{"id":"20260420-211211-632146","words":["EXPRESSWAY","JARGON","LINGO","ARGUMENT","MOVEMENT","SLANG","PIKE","VERNACULAR","INTERSTATE","POINT","MOTORWAY","CAMPAIGN","CAUSE","CLOCKWISE","DRIVE","INTELLIGENCE"],"groups":[{"label":"SYNONYMS OF CANT","words":["LINGO","JARGON","VERNACULAR","SLANG"],"level":0},{"label":"TYPES OF HIGHWAY","words":["EXPRESSWAY","PIKE","MOTORWAY","INTERSTATE"],"level":1},{"label":"TYPES OF VENTURE","words":["CAMPAIGN","DRIVE","MOVEMENT","CAUSE"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211211-632320","words":["FAULT","INJURE","BREAK","FRACTURE","WIDE","CRUISER","SPITE","BRUISE","SILK","DESTROYER","WOUND","BATTLESHIP","FLAT","SHIFT","CORVETTE","TOUCH"],"groups":[{"label":"SYNONYMS OF HURT","words":["BRUISE","INJURE","WOUND","SPITE"],"level":0},{"label":"TYPES OF WARSHIP","words":["CRUISER","CORVETTE","BATTLESHIP","DESTROYER"],"level":1},{"label":"TYPES OF CRACK","words":["FAULT","FRACTURE","SHIFT","BREAK"],"level":2},{"label":"___ SCREEN","words":["TOUCH","FLAT","WIDE","SILK"],"level":3}]},{"id":"20260420-211211-632375","words":["REVEAL","FRACTURE","KW","MUM","FAULT","DISCLOSE","EXPOSE","DISCOVER","SHIFT","BREAK","VAR","WATT","BUS","SKIRTS","HORSEPOWER","GOLF"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF POWER UNIT","words":["VAR","HORSEPOWER","WATT","KW"],"level":1},{"label":"TYPES OF CRACK","words":["FAULT","FRACTURE","SHIFT","BREAK"],"level":2},{"label":"MINI ___","words":["BUS","MUM","GOLF","SKIRTS"],"level":3}]},{"id":"20260420-211211-649197","words":["PROTEST","COLLAR","GLOOMY","JAW","BREAST","RED","REBELLION","DISPUTE","RIDGE","TIE","BLUE","DEFIANCE","GRIM","HEADER","DEPRESSED","KEEL"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF RESISTANCE","words":["REBELLION","DISPUTE","PROTEST","DEFIANCE"],"level":1},{"label":"TYPES OF BEAM","words":["RIDGE","TIE","HEADER","KEEL"],"level":2},{"label":"___ BONE","words":["JAW","BREAST","RED","COLLAR"],"level":3}]},{"id":"20260420-211211-700295","words":["STOP","EXIT","RELEASE","LOSS","GOING","TERMINATE","FEBRUARY","FLAT","DECEMBER","OCTOBER","CEASE","SILK","FINISH","WIDE","APRIL","TOUCH"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF GREGORIAN CALENDAR MONTH","words":["OCTOBER","APRIL","FEBRUARY","DECEMBER"],"level":1},{"label":"TYPES OF DEATH","words":["EXIT","RELEASE","GOING","LOSS"],"level":2},{"label":"___ SCREEN","words":["TOUCH","FLAT","WIDE","SILK"],"level":3}]},{"id":"20260420-211211-700479","words":["FRIEND","BROTHER","SHADY","WILD","SCORE","SMART","SUSPECT","ROOMMATE","FISHY","COMRADE","BUDDY","MASTER","BOOSTER","SUSPICIOUS","SUPPORTER","CHAMPION"],"groups":[{"label":"SYNONYMS OF FUNNY","words":["FISHY","SUSPICIOUS","SHADY","SUSPECT"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"___ CARD","words":["MASTER","WILD","SCORE","SMART"],"level":3}]},{"id":"20260420-211211-717090","words":["GLOOMY","GRIM","RED","ROUGE","BLUE","IRRADIATION","BREAST","JAW","COLLAR","DEPRESSED","BEAM","RAY","LIPSTICK","EYESHADOW","SHAFT","EYELINER"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF MAKEUP","words":["EYELINER","EYESHADOW","LIPSTICK","ROUGE"],"level":1},{"label":"TYPES OF LIGHT","words":["SHAFT","RAY","BEAM","IRRADIATION"],"level":2},{"label":"___ BONE","words":["JAW","BREAST","RED","COLLAR"],"level":3}]},{"id":"20260420-211211-717175","words":["SMASH","PATHOLOGY","ABSURD","EVEN","BANG","THROUGH","IDIOTIC","DOWN","POINT","RADIOLOGY","KNOCK","BELT","SURGERY","NEUROLOGY","PREPOSTEROUS","LUDICROUS"],"groups":[{"label":"SYNONYMS OF RIDICULOUS","words":["LUDICROUS","IDIOTIC","PREPOSTEROUS","ABSURD"],"level":0},{"label":"TYPES OF MEDICAL SCIENCE","words":["RADIOLOGY","SURGERY","PATHOLOGY","NEUROLOGY"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"BREAK ___","words":["DOWN","THROUGH","POINT","EVEN"],"level":3}]},{"id":"20260420-211211-717313","words":["LIVED","HAIR","FURNITURE","PRIVY","DECOMPOSITION","CAVITY","JOHN","FITTING","LIST","ROTTING","WAVE","RUIN","CARPET","TOILET","RUG","BATHROOM"],"groups":[{"label":"SYNONYMS OF CAN","words":["BATHROOM","PRIVY","JOHN","TOILET"],"level":0},{"label":"TYPES OF FURNISHING","words":["CARPET","RUG","FURNITURE","FITTING"],"level":1},{"label":"TYPES OF DECAY","words":["DECOMPOSITION","RUIN","CAVITY","ROTTING"],"level":2},{"label":"SHORT ___","words":["WAVE","LIST","LIVED","HAIR"],"level":3}]},{"id":"20260420-211211-717380","words":["LEFT","ICELANDIC","CONVEY","BASE","PASS","ROOT","NORWEGIAN","STEM","IMPART","CONDUCT","DANISH","SWEDISH","TURN","HUNG","CHANNEL","THEME"],"groups":[{"label":"SYNONYMS OF CARRY","words":["CHANNEL","CONDUCT","CONVEY","IMPART"],"level":0},{"label":"TYPES OF SCANDINAVIAN","words":["DANISH","ICELANDIC","SWEDISH","NORWEGIAN"],"level":1},{"label":"TYPES OF FORM","words":["STEM","BASE","THEME","ROOT"],"level":2},{"label":"___ OVER","words":["HUNG","LEFT","PASS","TURN"],"level":3}]},{"id":"20260420-211211-717432","words":["WIDE","NARROW","OPTICS","BROAD","ASTRONOMY","PASS","MECHANICS","DEPTH","STRIKING","INTENSITY","SPECTACULAR","AERONAUTICS","LOW","PROMINENT","CALIBRE","SALIENT"],"groups":[{"label":"SYNONYMS OF OUTSTANDING","words":["STRIKING","SPECTACULAR","PROMINENT","SALIENT"],"level":0},{"label":"TYPES OF PHYSICS","words":["OPTICS","MECHANICS","AERONAUTICS","ASTRONOMY"],"level":1},{"label":"TYPES OF DEGREE","words":["CALIBRE","INTENSITY","LOW","DEPTH"],"level":2},{"label":"___ BAND","words":["PASS","BROAD","WIDE","NARROW"],"level":3}]},{"id":"20260420-211211-794397","words":["INITIATION","CENTER","SHEET","HELL","POINT","UTOPIA","BASES","HEAVEN","INSTITUTION","BAR","PATCH","SHADING","CREATION","FOUNDING","PURGATORY","SPOT"],"groups":[{"label":"SYNONYMS OF FOUNDATION","words":["CREATION","INITIATION","FOUNDING","INSTITUTION"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF MARKING","words":["SPOT","SHADING","BAR","PATCH"],"level":2},{"label":"DATA ___","words":["SHEET","CENTER","POINT","BASES"],"level":3}]},{"id":"20260420-211211-794516","words":["SACK","DESIGNATION","SLANG","MEN","LINGO","JARGON","VERNACULAR","PSEUDONYM","COUCH","PLAY","BUNK","NICKNAME","SIGNATURE","HAND","BERTH","THOUGHT"],"groups":[{"label":"SYNONYMS OF CANT","words":["LINGO","JARGON","VERNACULAR","SLANG"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF BED","words":["BERTH","BUNK","SACK","COUCH"],"level":2},{"label":"FREE ___","words":["HAND","MEN","PLAY","THOUGHT"],"level":3}]},{"id":"20260420-211211-794597","words":["BOXES","SEVEN","CONTROL","MARK","SLEAZY","TEN","LIST","JURISDICTION","PUNK","DISCRETION","SIX","POINT","VETO","BUM","CHEESY","EIGHT"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF SPOT","words":["SIX","EIGHT","SEVEN","TEN"],"level":1},{"label":"TYPES OF POWER","words":["DISCRETION","CONTROL","VETO","JURISDICTION"],"level":2},{"label":"CHECK ___","words":["LIST","POINT","MARK","BOXES"],"level":3}]},{"id":"20260420-211211-794760","words":["BLOOM","TOILET","SAILOR","PRIME","PRIVY","HAIR","PEAK","BATHROOM","LEGS","JOHN","DERBY","FLUSH","BONNET","LIST","LINE","TOPPER"],"groups":[{"label":"SYNONYMS OF CAN","words":["BATHROOM","PRIVY","JOHN","TOILET"],"level":0},{"label":"TYPES OF HAT","words":["DERBY","SAILOR","TOPPER","BONNET"],"level":1},{"label":"TYPES OF TIME PERIOD","words":["FLUSH","BLOOM","PRIME","PEAK"],"level":2},{"label":"LONG ___","words":["LIST","LINE","LEGS","HAIR"],"level":3}]},{"id":"20260420-211211-794825","words":["OPENNESS","DISTANCE","DENSITY","CENTRAL","REMUNERATION","SIDE","EASTERN","CARVING","DISTRIBUTION","DRILLING","SALARY","STAR","CUTTING","EXCAVATION","WAGE","EARNINGS"],"groups":[{"label":"SYNONYMS OF PAY","words":["EARNINGS","SALARY","WAGE","REMUNERATION"],"level":0},{"label":"TYPES OF SPACING","words":["OPENNESS","DISTRIBUTION","DISTANCE","DENSITY"],"level":1},{"label":"TYPES OF CREATING BY REMOVAL","words":["DRILLING","EXCAVATION","CARVING","CUTTING"],"level":2},{"label":"NORTH ___","words":["EASTERN","SIDE","STAR","CENTRAL"],"level":3}]},{"id":"20260420-211211-794874","words":["SHORT","SCAR","ELEMENT","COMPONENT","PALSY","HALT","LONG","APNEA","INGREDIENT","CONSTITUENT","GUEST","ARREST","CHECK","HITCH","STAY","INFLAMMATION"],"groups":[{"label":"SYNONYMS OF FACTOR","words":["ELEMENT","COMPONENT","INGREDIENT","CONSTITUENT"],"level":0},{"label":"TYPES OF SYMPTOM","words":["SCAR","INFLAMMATION","APNEA","PALSY"],"level":1},{"label":"TYPES OF INACTION","words":["HITCH","ARREST","HALT","STAY"],"level":2},{"label":"___ LIST","words":["SHORT","LONG","CHECK","GUEST"],"level":3}]},{"id":"20260420-211211-799433","words":["JUKE","FORTUNE","INTENSITY","LIGHT","CALIBRE","LETTER","REBUKE","ICE","FLAK","FATE","DEPTH","LUCK","THRUST","DESTINY","ATTACK","LOW"],"groups":[{"label":"SYNONYMS OF LOT","words":["DESTINY","FATE","FORTUNE","LUCK"],"level":0},{"label":"TYPES OF CRITICISM","words":["THRUST","FLAK","REBUKE","ATTACK"],"level":1},{"label":"TYPES OF DEGREE","words":["CALIBRE","INTENSITY","LOW","DEPTH"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211211-834309","words":["WRETCHED","FRIEND","GRAPE","CHAMPION","COMRADE","OIL","DESPICABLE","SUPPORTER","FLAX","BUDDY","SLIMY","COTTON","BOOSTER","ROOMMATE","VILE","BROTHER"],"groups":[{"label":"SYNONYMS OF UGLY","words":["WRETCHED","VILE","DESPICABLE","SLIMY"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"___ SEED","words":["GRAPE","OIL","COTTON","FLAX"],"level":3}]},{"id":"20260420-211211-834489","words":["FEUD","FIGHT","TRAP","EXPOSE","DISCOVER","DISCLOSE","GLASS","TELLING","PRESENTATION","REPORT","BACK","WAR","REVEAL","BRIEFING","NEXT","STRIFE"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF CONFLICT","words":["FEUD","STRIFE","FIGHT","WAR"],"level":1},{"label":"TYPES OF INFORMING","words":["BRIEFING","PRESENTATION","REPORT","TELLING"],"level":2},{"label":"___ DOOR","words":["NEXT","GLASS","BACK","TRAP"],"level":3}]},{"id":"20260420-211211-834544","words":["LIST","TEN","SALIENT","SLUG","PROMINENT","LICK","SEVEN","SIX","PUNCH","SPECTACULAR","EIGHT","CLOUT","POINT","STRIKING","BOXES","MARK"],"groups":[{"label":"SYNONYMS OF OUTSTANDING","words":["STRIKING","SPECTACULAR","PROMINENT","SALIENT"],"level":0},{"label":"TYPES OF SPOT","words":["SIX","EIGHT","SEVEN","TEN"],"level":1},{"label":"TYPES OF BLOW","words":["PUNCH","SLUG","CLOUT","LICK"],"level":2},{"label":"CHECK ___","words":["LIST","POINT","MARK","BOXES"],"level":3}]},{"id":"20260420-211211-834604","words":["PATCH","FALL","BAR","LAND","COMPLETION","ICING","SHADING","ASSIST","PORT","SPECTACULAR","SALIENT","MAN","FOOTWORK","PROMINENT","SPOT","STRIKING"],"groups":[{"label":"SYNONYMS OF OUTSTANDING","words":["STRIKING","SPECTACULAR","PROMINENT","SALIENT"],"level":0},{"label":"TYPES OF MANEUVER","words":["ASSIST","COMPLETION","ICING","FOOTWORK"],"level":1},{"label":"TYPES OF MARKING","words":["SPOT","SHADING","BAR","PATCH"],"level":2},{"label":"FREE ___","words":["LAND","MAN","PORT","FALL"],"level":3}]},{"id":"20260420-211211-851965","words":["VETO","DEPRESSED","RED","DISCRETION","GRIM","BREAST","MANTRA","JURISDICTION","COLLAR","BLUE","JAW","GLOOMY","PRAYER","BIBLE","TESTAMENT","CONTROL"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF SACRED TEXT","words":["PRAYER","TESTAMENT","BIBLE","MANTRA"],"level":1},{"label":"TYPES OF POWER","words":["DISCRETION","CONTROL","VETO","JURISDICTION"],"level":2},{"label":"___ BONE","words":["JAW","BREAST","RED","COLLAR"],"level":3}]},{"id":"20260420-211211-857606","words":["GUEST","CHECK","MANTRA","TESTAMENT","SQUEEZE","COMPACT","SHORT","TELLING","LONG","PRAYER","PRESENTATION","BRIEFING","COMPRESS","REPORT","BIBLE","CONTRACT"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF SACRED TEXT","words":["PRAYER","TESTAMENT","BIBLE","MANTRA"],"level":1},{"label":"TYPES OF INFORMING","words":["BRIEFING","PRESENTATION","REPORT","TELLING"],"level":2},{"label":"___ LIST","words":["SHORT","LONG","CHECK","GUEST"],"level":3}]},{"id":"20260420-211211-857665","words":["IMMUNIZATION","CREST","CHARGE","CROWN","EXPOSE","INSULATION","TIP","TOUCH","DEFENSE","DISCOVER","WIDE","FLAT","TOP","SILK","REVEAL","DISCLOSE"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF PROTECTION","words":["DEFENSE","INSULATION","IMMUNIZATION","CHARGE"],"level":1},{"label":"TYPES OF TOPOGRAPHIC POINT","words":["TOP","TIP","CREST","CROWN"],"level":2},{"label":"___ SCREEN","words":["TOUCH","FLAT","WIDE","SILK"],"level":3}]},{"id":"20260420-211211-857746","words":["STAR","BUDDY","MOMENT","SECOND","DISCLOSE","BIT","SIDE","ROOMMATE","EXPOSE","REVEAL","BROTHER","CENTRAL","DISCOVER","COMRADE","EASTERN","MINUTE"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF TIME","words":["MINUTE","MOMENT","SECOND","BIT"],"level":2},{"label":"NORTH ___","words":["EASTERN","SIDE","STAR","CENTRAL"],"level":3}]},{"id":"20260420-211211-857800","words":["SCAR","DUET","POINT","PALSY","APNEA","EXPOSE","LIST","DISCOVER","BOXES","BRACE","DISCLOSE","YOKE","REVEAL","INFLAMMATION","MARK","COUPLE"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF SYMPTOM","words":["SCAR","INFLAMMATION","APNEA","PALSY"],"level":1},{"label":"TYPES OF TWO","words":["BRACE","COUPLE","YOKE","DUET"],"level":2},{"label":"CHECK ___","words":["LIST","POINT","MARK","BOXES"],"level":3}]},{"id":"20260420-211211-858160","words":["DISCLOSE","FOOTWORK","REVEAL","COMPLETION","PRESENTATION","ASSIST","WRITERS","REPORT","TIME","SAVER","EXPOSE","TELLING","SHOTS","DISCOVER","BRIEFING","ICING"],"groups":[{"label":"SYNONYMS OF BREAK","words":["DISCLOSE","DISCOVER","REVEAL","EXPOSE"],"level":0},{"label":"TYPES OF MANEUVER","words":["ASSIST","COMPLETION","ICING","FOOTWORK"],"level":1},{"label":"TYPES OF INFORMING","words":["BRIEFING","PRESENTATION","REPORT","TELLING"],"level":2},{"label":"SCREEN ___","words":["WRITERS","SHOTS","SAVER","TIME"],"level":3}]},{"id":"20260420-211211-875693","words":["RELEASE","CEASE","GOING","STOP","CLEAR","WORLD","ANGELICA","LOSS","MOUNTAIN","SAVORY","MINT","FINISH","EXIT","BASIL","BROAD","TERMINATE"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF HERB","words":["MINT","ANGELICA","BASIL","SAVORY"],"level":1},{"label":"TYPES OF DEATH","words":["EXIT","RELEASE","GOING","LOSS"],"level":2},{"label":"___ VIEW","words":["BROAD","CLEAR","WORLD","MOUNTAIN"],"level":3}]},{"id":"20260420-211211-943595","words":["HEAVEN","HELL","FRACTURE","SHIFT","PURGATORY","BREAK","DEAD","FORK","CHAIR","WET","LOADED","UTOPIA","FACE","PLASTERED","SMASHED","FAULT"],"groups":[{"label":"SYNONYMS OF TIGHT","words":["WET","LOADED","SMASHED","PLASTERED"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF CRACK","words":["FAULT","FRACTURE","SHIFT","BREAK"],"level":2},{"label":"___ LIFT","words":["FACE","CHAIR","FORK","DEAD"],"level":3}]},{"id":"20260420-211211-943759","words":["BOOSTER","WORK","BUDDY","GLORY","RESPECT","BOOK","RENOWN","FRIEND","ROOMMATE","PAWN","COMRADE","BARBER","BROTHER","REPUTATION","SUPPORTER","CHAMPION"],"groups":[{"label":"TYPES OF HONOR","words":["RENOWN","GLORY","RESPECT","REPUTATION"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"___ SHOP","words":["BARBER","BOOK","WORK","PAWN"],"level":3}]},{"id":"20260420-211211-943847","words":["SENSE","FLEDGLING","HELL","NEWCOMER","LESSON","MASTER","WILD","ESSENCE","SMART","FRESHMAN","HEAVEN","SCORE","NEWBIE","UTOPIA","PURGATORY","SHADE"],"groups":[{"label":"SYNONYMS OF STARTER","words":["FLEDGLING","NEWBIE","FRESHMAN","NEWCOMER"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF MEANING","words":["SENSE","SHADE","ESSENCE","LESSON"],"level":2},{"label":"___ CARD","words":["MASTER","WILD","SCORE","SMART"],"level":3}]},{"id":"20260420-211211-943933","words":["DAWN","BROAD","BIBLE","FLUSH","SUNRISE","MOUNTAIN","MANTRA","DAYBREAK","AURORA","CLEAR","TESTAMENT","PRAYER","BLOOM","PEAK","PRIME","WORLD"],"groups":[{"label":"SYNONYMS OF MORNING","words":["DAYBREAK","AURORA","DAWN","SUNRISE"],"level":0},{"label":"TYPES OF SACRED TEXT","words":["PRAYER","TESTAMENT","BIBLE","MANTRA"],"level":1},{"label":"TYPES OF TIME PERIOD","words":["FLUSH","BLOOM","PRIME","PEAK"],"level":2},{"label":"___ VIEW","words":["BROAD","CLEAR","WORLD","MOUNTAIN"],"level":3}]},{"id":"20260420-211211-944000","words":["HAIR","ASTRONOMY","RUIN","CAVITY","CHANNEL","LIVED","AERONAUTICS","OPTICS","CONDUCT","ROTTING","IMPART","CONVEY","WAVE","LIST","MECHANICS","DECOMPOSITION"],"groups":[{"label":"SYNONYMS OF CARRY","words":["CHANNEL","CONDUCT","CONVEY","IMPART"],"level":0},{"label":"TYPES OF PHYSICS","words":["OPTICS","MECHANICS","AERONAUTICS","ASTRONOMY"],"level":1},{"label":"TYPES OF DECAY","words":["DECOMPOSITION","RUIN","CAVITY","ROTTING"],"level":2},{"label":"SHORT ___","words":["WAVE","LIST","LIVED","HAIR"],"level":3}]},{"id":"20260420-211211-944050","words":["GRIM","GLOOMY","TORTURE","STRAINING","BLUE","FRONT","NORWEGIAN","DEPRESSED","CRUISERS","SWEDISH","DISTORTION","ICELANDIC","GROUND","TWISTING","DANISH","SHIPS"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF SCANDINAVIAN","words":["DANISH","ICELANDIC","SWEDISH","NORWEGIAN"],"level":1},{"label":"TYPES OF FALSIFICATION","words":["TORTURE","TWISTING","DISTORTION","STRAINING"],"level":2},{"label":"BATTLE ___","words":["FRONT","GROUND","CRUISERS","SHIPS"],"level":3}]},{"id":"20260420-211211-961594","words":["INGREDIENT","INTENSITY","DEPTH","GULF","NORWEGIAN","COMPONENT","ELEMENT","DANISH","BLOOD","CONSTITUENT","DOWN","ICELANDIC","SWEDISH","LOW","AIR","CALIBRE"],"groups":[{"label":"SYNONYMS OF FACTOR","words":["ELEMENT","COMPONENT","INGREDIENT","CONSTITUENT"],"level":0},{"label":"TYPES OF SCANDINAVIAN","words":["DANISH","ICELANDIC","SWEDISH","NORWEGIAN"],"level":1},{"label":"TYPES OF DEGREE","words":["CALIBRE","INTENSITY","LOW","DEPTH"],"level":2},{"label":"___ STREAM","words":["GULF","AIR","DOWN","BLOOD"],"level":3}]},{"id":"20260420-211211-961656","words":["BLUE","DRILLING","EXCAVATION","DEPRESSED","THERAPIST","GLOOMY","COAL","GRIM","CUTTING","GUIDE","ADEPT","GOLD","ANALYST","OIL","CORN","CARVING"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF EXPERT","words":["ADEPT","ANALYST","THERAPIST","GUIDE"],"level":1},{"label":"TYPES OF CREATING BY REMOVAL","words":["DRILLING","EXCAVATION","CARVING","CUTTING"],"level":2},{"label":"___ FIELDS","words":["COAL","GOLD","CORN","OIL"],"level":3}]},{"id":"20260420-211211-961723","words":["OPINION","PRIME","BELIEF","DESIGNATION","NOTION","JUKE","BLOOM","IMPRESSION","LETTER","LIGHT","SIGNATURE","ICE","PEAK","FLUSH","PSEUDONYM","NICKNAME"],"groups":[{"label":"SYNONYMS OF FEELING","words":["NOTION","IMPRESSION","BELIEF","OPINION"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF TIME PERIOD","words":["FLUSH","BLOOM","PRIME","PEAK"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211212-013234","words":["SPOT","STOP","FINISH","MOVER","GROUND","SHIPPER","TERMINATE","BAR","FRONT","PATCH","SUBSIDIARY","CEASE","PHARMA","SHADING","SHIPS","CRUISERS"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF COMPANY","words":["MOVER","SUBSIDIARY","SHIPPER","PHARMA"],"level":1},{"label":"TYPES OF MARKING","words":["SPOT","SHADING","BAR","PATCH"],"level":2},{"label":"BATTLE ___","words":["FRONT","GROUND","CRUISERS","SHIPS"],"level":3}]},{"id":"20260420-211212-013381","words":["REBUKE","NEXT","BACK","RELEASE","FLAK","LOSS","EXIT","TRAP","STOP","THRUST","GOING","TERMINATE","CEASE","ATTACK","FINISH","GLASS"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF CRITICISM","words":["THRUST","FLAK","REBUKE","ATTACK"],"level":1},{"label":"TYPES OF DEATH","words":["EXIT","RELEASE","GOING","LOSS"],"level":2},{"label":"___ DOOR","words":["NEXT","GLASS","BACK","TRAP"],"level":3}]},{"id":"20260420-211212-013458","words":["LETTER","LIGHT","SLEAZY","BROTHER","BELT","SMASH","ICE","ROOMMATE","BANG","CHEESY","BUM","BUDDY","PUNK","COMRADE","JUKE","KNOCK"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211212-020113","words":["WAR","REVERSE","REVOKE","HEAD","DRIVE","TRIP","FEUD","FIGHT","STRIFE","TABLE","REPEAL","MOVEMENT","ABOUT","OVERTURN","CAMPAIGN","CAUSE"],"groups":[{"label":"SYNONYMS OF LIFT","words":["OVERTURN","REVOKE","REVERSE","REPEAL"],"level":0},{"label":"TYPES OF CONFLICT","words":["FEUD","STRIFE","FIGHT","WAR"],"level":1},{"label":"TYPES OF VENTURE","words":["CAMPAIGN","DRIVE","MOVEMENT","CAUSE"],"level":2},{"label":"ROUND ___","words":["ABOUT","TABLE","TRIP","HEAD"],"level":3}]},{"id":"20260420-211212-020188","words":["HITCH","SUPPOSE","ARREST","WORKS","STAY","IMAGINE","ANGELICA","BRIDGE","HALT","BASIL","RECKON","WORKERS","GUESS","MAN","MINT","SAVORY"],"groups":[{"label":"SYNONYMS OF THINK","words":["IMAGINE","GUESS","SUPPOSE","RECKON"],"level":0},{"label":"TYPES OF HERB","words":["MINT","ANGELICA","BASIL","SAVORY"],"level":1},{"label":"TYPES OF INACTION","words":["HITCH","ARREST","HALT","STAY"],"level":2},{"label":"IRON ___","words":["MAN","WORKS","WORKERS","BRIDGE"],"level":3}]},{"id":"20260420-211212-020256","words":["BIT","BELIEF","FLAT","WAR","TOUCH","WIDE","STRIFE","FEUD","MINUTE","SECOND","FIGHT","SILK","IMPRESSION","OPINION","MOMENT","NOTION"],"groups":[{"label":"SYNONYMS OF FEELING","words":["NOTION","IMPRESSION","BELIEF","OPINION"],"level":0},{"label":"TYPES OF CONFLICT","words":["FEUD","STRIFE","FIGHT","WAR"],"level":1},{"label":"TYPES OF TIME","words":["MINUTE","MOMENT","SECOND","BIT"],"level":2},{"label":"___ SCREEN","words":["TOUCH","FLAT","WIDE","SILK"],"level":3}]},{"id":"20260420-211212-020392","words":["DESIGNATION","COURSE","UNMISTAKABLE","CLASS","PSEUDONYM","ARGUMENT","POINT","MANIFEST","INTELLIGENCE","GRADE","FORM","CLOCKWISE","EVIDENT","APPARENT","NICKNAME","SIGNATURE"],"groups":[{"label":"SYNONYMS OF PLAIN","words":["APPARENT","UNMISTAKABLE","EVIDENT","MANIFEST"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF GATHERING","words":["COURSE","CLASS","GRADE","FORM"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211212-020457","words":["TWO","GLOOMY","PRIME","BLUE","CORN","FIVE","DEPRESSED","FOUR","GRIM","THREE","GOLD","FLUSH","BLOOM","COAL","OIL","PEAK"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF DIGIT","words":["FOUR","THREE","TWO","FIVE"],"level":1},{"label":"TYPES OF TIME PERIOD","words":["FLUSH","BLOOM","PRIME","PEAK"],"level":2},{"label":"___ FIELDS","words":["COAL","GOLD","CORN","OIL"],"level":3}]},{"id":"20260420-211212-054989","words":["COMRADE","SEA","WESTERN","ROOMMATE","FRIEND","EAST","BANK","BOOSTER","NOTION","SUPPORTER","BUDDY","CHAMPION","OPINION","IMPRESSION","BELIEF","BROTHER"],"groups":[{"label":"SYNONYMS OF FEELING","words":["NOTION","IMPRESSION","BELIEF","OPINION"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"SOUTH ___","words":["SEA","WESTERN","BANK","EAST"],"level":3}]},{"id":"20260420-211212-055074","words":["CREATION","ENOUGH","TORTURE","MORNING","EYESHADOW","STRAINING","EYELINER","INSTITUTION","INITIATION","ROUGE","LIPSTICK","TWISTING","JOB","FOUNDING","LIFE","DISTORTION"],"groups":[{"label":"SYNONYMS OF FOUNDATION","words":["CREATION","INITIATION","FOUNDING","INSTITUTION"],"level":0},{"label":"TYPES OF MAKEUP","words":["EYELINER","EYESHADOW","LIPSTICK","ROUGE"],"level":1},{"label":"TYPES OF FALSIFICATION","words":["TORTURE","TWISTING","DISTORTION","STRAINING"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-055128","words":["ALMIGHTY","MINT","POSTPONEMENT","ANGELICA","BARBER","PAWN","WORK","HOLD","REST","DIVINE","CREATOR","SAVORY","BOOK","JEHOVAH","WAIT","BASIL"],"groups":[{"label":"SYNONYMS OF LORD","words":["CREATOR","JEHOVAH","ALMIGHTY","DIVINE"],"level":0},{"label":"TYPES OF HERB","words":["MINT","ANGELICA","BASIL","SAVORY"],"level":1},{"label":"TYPES OF PAUSE","words":["POSTPONEMENT","HOLD","REST","WAIT"],"level":2},{"label":"___ SHOP","words":["BARBER","BOOK","WORK","PAWN"],"level":3}]},{"id":"20260420-211212-055191","words":["DEPTH","WRETCHED","LOW","LIMB","INTENSITY","LEGS","FOOT","SAVORY","BASIL","ANGELICA","SLIMY","DESPICABLE","VILE","CALIBRE","ARM","MINT"],"groups":[{"label":"SYNONYMS OF UGLY","words":["WRETCHED","VILE","DESPICABLE","SLIMY"],"level":0},{"label":"TYPES OF HERB","words":["MINT","ANGELICA","BASIL","SAVORY"],"level":1},{"label":"TYPES OF DEGREE","words":["CALIBRE","INTENSITY","LOW","DEPTH"],"level":2},{"label":"FORE ___","words":["LIMB","ARM","FOOT","LEGS"],"level":3}]},{"id":"20260420-211212-055240","words":["CAVITY","RUIN","TABLE","WATT","DECOMPOSITION","HORSEPOWER","ABOUT","TRIP","VAR","RESPECT","KW","RENOWN","HEAD","GLORY","ROTTING","REPUTATION"],"groups":[{"label":"TYPES OF HONOR","words":["RENOWN","GLORY","RESPECT","REPUTATION"],"level":0},{"label":"TYPES OF POWER UNIT","words":["VAR","HORSEPOWER","WATT","KW"],"level":1},{"label":"TYPES OF DECAY","words":["DECOMPOSITION","RUIN","CAVITY","ROTTING"],"level":2},{"label":"ROUND ___","words":["ABOUT","TABLE","TRIP","HEAD"],"level":3}]},{"id":"20260420-211212-055291","words":["SHADY","WADING","SHUFFLING","BETH","FEBRUARY","SUSPECT","GAIT","LOU","SUSPICIOUS","ANNE","OCTOBER","DECEMBER","FISHY","APRIL","MARCHING","JANE"],"groups":[{"label":"SYNONYMS OF FUNNY","words":["FISHY","SUSPICIOUS","SHADY","SUSPECT"],"level":0},{"label":"TYPES OF GREGORIAN CALENDAR MONTH","words":["OCTOBER","APRIL","FEBRUARY","DECEMBER"],"level":1},{"label":"TYPES OF WALK","words":["MARCHING","GAIT","SHUFFLING","WADING"],"level":2},{"label":"MARY ___","words":["LOU","JANE","BETH","ANNE"],"level":3}]},{"id":"20260420-211212-055388","words":["WOLF","DAY","MARXIST","SLEAZY","PARTISAN","PLUG","HACK","SNOW","FEDERALIST","JADE","NAG","PUNK","BACK","BUM","CHEESY","REPUBLICAN"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF HORSE","words":["PLUG","JADE","HACK","NAG"],"level":2},{"label":"___ PACK","words":["DAY","SNOW","BACK","WOLF"],"level":3}]},{"id":"20260420-211212-055455","words":["HORSEPOWER","CLOUT","LAND","WATT","FALL","MAN","PORT","REPEAL","VAR","KW","SLUG","LICK","PUNCH","REVERSE","REVOKE","OVERTURN"],"groups":[{"label":"SYNONYMS OF LIFT","words":["OVERTURN","REVOKE","REVERSE","REPEAL"],"level":0},{"label":"TYPES OF POWER UNIT","words":["VAR","HORSEPOWER","WATT","KW"],"level":1},{"label":"TYPES OF BLOW","words":["PUNCH","SLUG","CLOUT","LICK"],"level":2},{"label":"FREE ___","words":["LAND","MAN","PORT","FALL"],"level":3}]},{"id":"20260420-211212-055651","words":["HERO","LAND","WEDGE","JOHN","PORT","MAN","FITTING","FURNITURE","PRIVY","RUG","FALL","SUBMARINE","BATHROOM","TOILET","CARPET","TORPEDO"],"groups":[{"label":"SYNONYMS OF CAN","words":["BATHROOM","PRIVY","JOHN","TOILET"],"level":0},{"label":"TYPES OF FURNISHING","words":["CARPET","RUG","FURNITURE","FITTING"],"level":1},{"label":"TYPES OF SANDWICH","words":["TORPEDO","SUBMARINE","WEDGE","HERO"],"level":2},{"label":"FREE ___","words":["LAND","MAN","PORT","FALL"],"level":3}]},{"id":"20260420-211212-073848","words":["BRUISE","PSEUDONYM","INJURE","DESIGNATION","SHADE","TURN","PASS","HUNG","ESSENCE","LEFT","NICKNAME","LESSON","SIGNATURE","SENSE","WOUND","SPITE"],"groups":[{"label":"SYNONYMS OF HURT","words":["BRUISE","INJURE","WOUND","SPITE"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF MEANING","words":["SENSE","SHADE","ESSENCE","LESSON"],"level":2},{"label":"___ OVER","words":["HUNG","LEFT","PASS","TURN"],"level":3}]},{"id":"20260420-211212-073927","words":["ROTTING","OPINION","BRIDGE","DEFENSE","INSULATION","RUIN","CAVITY","DECOMPOSITION","CHARGE","NOTION","WORKERS","BELIEF","IMMUNIZATION","WORKS","MAN","IMPRESSION"],"groups":[{"label":"SYNONYMS OF FEELING","words":["NOTION","IMPRESSION","BELIEF","OPINION"],"level":0},{"label":"TYPES OF PROTECTION","words":["DEFENSE","INSULATION","IMMUNIZATION","CHARGE"],"level":1},{"label":"TYPES OF DECAY","words":["DECOMPOSITION","RUIN","CAVITY","ROTTING"],"level":2},{"label":"IRON ___","words":["MAN","WORKS","WORKERS","BRIDGE"],"level":3}]},{"id":"20260420-211212-074000","words":["ROOMMATE","SOUTH","COMPACT","SQUEEZE","NEW","BUDDY","FIELD","SUBJECT","COMPRESS","NORTH","BROTHER","STUDY","HIGH","CONTRACT","DISCIPLINE","COMRADE"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF KNOWLEDGE DOMAIN","words":["DISCIPLINE","SUBJECT","FIELD","STUDY"],"level":2},{"label":"___ GATE","words":["SOUTH","NORTH","HIGH","NEW"],"level":3}]},{"id":"20260420-211212-074049","words":["DRIVE","BUTCHER","TERMINATE","CAUSE","LIST","MOVEMENT","BOXES","RIPPER","FINISH","POINT","ASSASSIN","MARK","CAMPAIGN","CEASE","GUNMAN","STOP"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF MURDERER","words":["RIPPER","BUTCHER","ASSASSIN","GUNMAN"],"level":1},{"label":"TYPES OF VENTURE","words":["CAMPAIGN","DRIVE","MOVEMENT","CAUSE"],"level":2},{"label":"CHECK ___","words":["LIST","POINT","MARK","BOXES"],"level":3}]},{"id":"20260420-211212-074311","words":["STOP","TERMINATE","HALT","JUKE","PHARMA","HITCH","CEASE","FINISH","SHIPPER","LIGHT","LETTER","ICE","ARREST","SUBSIDIARY","STAY","MOVER"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF COMPANY","words":["MOVER","SUBSIDIARY","SHIPPER","PHARMA"],"level":1},{"label":"TYPES OF INACTION","words":["HITCH","ARREST","HALT","STAY"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211212-074400","words":["CONTRACT","BANG","BELT","COMPRESS","FITTING","RUG","LETTER","KNOCK","LIGHT","CARPET","SMASH","SQUEEZE","COMPACT","FURNITURE","JUKE","ICE"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF FURNISHING","words":["CARPET","RUG","FURNITURE","FITTING"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211212-079799","words":["EXCAVATION","DRILLING","CARVING","WIDE","REBELLION","DEFIANCE","CUTTING","SPECTACULAR","PROTEST","DISPUTE","FLAT","PROMINENT","TOUCH","STRIKING","SILK","SALIENT"],"groups":[{"label":"SYNONYMS OF OUTSTANDING","words":["STRIKING","SPECTACULAR","PROMINENT","SALIENT"],"level":0},{"label":"TYPES OF RESISTANCE","words":["REBELLION","DISPUTE","PROTEST","DEFIANCE"],"level":1},{"label":"TYPES OF CREATING BY REMOVAL","words":["DRILLING","EXCAVATION","CARVING","CUTTING"],"level":2},{"label":"___ SCREEN","words":["TOUCH","FLAT","WIDE","SILK"],"level":3}]},{"id":"20260420-211212-079905","words":["LICK","DENSITY","DISTRIBUTION","MORNING","COMPRESS","ENOUGH","SQUEEZE","OPENNESS","PUNCH","CONTRACT","JOB","SLUG","COMPACT","DISTANCE","CLOUT","LIFE"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF SPACING","words":["OPENNESS","DISTRIBUTION","DISTANCE","DENSITY"],"level":1},{"label":"TYPES OF BLOW","words":["PUNCH","SLUG","CLOUT","LICK"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-079976","words":["THERAPIST","RAIL","SMASHED","ANALYST","WET","GUIDE","HERO","ADEPT","WEDGE","SIDE","BACK","PLASTERED","SOUND","TORPEDO","LOADED","SUBMARINE"],"groups":[{"label":"SYNONYMS OF TIGHT","words":["WET","LOADED","SMASHED","PLASTERED"],"level":0},{"label":"TYPES OF EXPERT","words":["ADEPT","ANALYST","THERAPIST","GUIDE"],"level":1},{"label":"TYPES OF SANDWICH","words":["TORPEDO","SUBMARINE","WEDGE","HERO"],"level":2},{"label":"___ TRACK","words":["SIDE","BACK","RAIL","SOUND"],"level":3}]},{"id":"20260420-211212-089765","words":["FRESHMAN","HALT","NEWBIE","APRIL","DECEMBER","STAY","OCTOBER","JOB","FEBRUARY","ARREST","HITCH","NEWCOMER","LIFE","ENOUGH","MORNING","FLEDGLING"],"groups":[{"label":"SYNONYMS OF STARTER","words":["FLEDGLING","NEWBIE","FRESHMAN","NEWCOMER"],"level":0},{"label":"TYPES OF GREGORIAN CALENDAR MONTH","words":["OCTOBER","APRIL","FEBRUARY","DECEMBER"],"level":1},{"label":"TYPES OF INACTION","words":["HITCH","ARREST","HALT","STAY"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-089893","words":["JOB","RESPECT","LIFE","BROTHER","ROOMMATE","SHADING","SPOT","ENOUGH","GLORY","BAR","MORNING","RENOWN","COMRADE","BUDDY","REPUTATION","PATCH"],"groups":[{"label":"TYPES OF HONOR","words":["RENOWN","GLORY","RESPECT","REPUTATION"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF MARKING","words":["SPOT","SHADING","BAR","PATCH"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-089993","words":["ADEPT","CLOCKWISE","REVOKE","INTELLIGENCE","INTENSITY","THERAPIST","LOW","CALIBRE","GUIDE","ARGUMENT","OVERTURN","REVERSE","POINT","DEPTH","ANALYST","REPEAL"],"groups":[{"label":"SYNONYMS OF LIFT","words":["OVERTURN","REVOKE","REVERSE","REPEAL"],"level":0},{"label":"TYPES OF EXPERT","words":["ADEPT","ANALYST","THERAPIST","GUIDE"],"level":1},{"label":"TYPES OF DEGREE","words":["CALIBRE","INTENSITY","LOW","DEPTH"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211212-090083","words":["ESSENCE","UNMISTAKABLE","CLOCKWISE","NICKNAME","SENSE","ARGUMENT","DESIGNATION","SHADE","EVIDENT","INTELLIGENCE","LESSON","MANIFEST","APPARENT","SIGNATURE","PSEUDONYM","POINT"],"groups":[{"label":"SYNONYMS OF PLAIN","words":["APPARENT","UNMISTAKABLE","EVIDENT","MANIFEST"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF MEANING","words":["SENSE","SHADE","ESSENCE","LESSON"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211212-094562","words":["CORN","COAL","OIL","WEDGE","GOLD","COMPACT","SUBMARINE","TORPEDO","EXPRESSWAY","SQUEEZE","CONTRACT","COMPRESS","HERO","INTERSTATE","MOTORWAY","PIKE"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF HIGHWAY","words":["EXPRESSWAY","PIKE","MOTORWAY","INTERSTATE"],"level":1},{"label":"TYPES OF SANDWICH","words":["TORPEDO","SUBMARINE","WEDGE","HERO"],"level":2},{"label":"___ FIELDS","words":["COAL","GOLD","CORN","OIL"],"level":3}]},{"id":"20260420-211212-094628","words":["CHEESY","TESTAMENT","GOLF","BIBLE","BUS","COURSE","BUM","CLASS","SKIRTS","PUNK","FORM","MANTRA","SLEAZY","PRAYER","MUM","GRADE"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF SACRED TEXT","words":["PRAYER","TESTAMENT","BIBLE","MANTRA"],"level":1},{"label":"TYPES OF GATHERING","words":["COURSE","CLASS","GRADE","FORM"],"level":2},{"label":"MINI ___","words":["BUS","MUM","GOLF","SKIRTS"],"level":3}]},{"id":"20260420-211212-094718","words":["CLOUT","PUNCH","SLUG","WRETCHED","REBUKE","VILE","DEAD","SLIMY","DESPICABLE","ATTACK","LICK","FORK","CHAIR","FACE","THRUST","FLAK"],"groups":[{"label":"SYNONYMS OF UGLY","words":["WRETCHED","VILE","DESPICABLE","SLIMY"],"level":0},{"label":"TYPES OF CRITICISM","words":["THRUST","FLAK","REBUKE","ATTACK"],"level":1},{"label":"TYPES OF BLOW","words":["PUNCH","SLUG","CLOUT","LICK"],"level":2},{"label":"___ LIFT","words":["FACE","CHAIR","FORK","DEAD"],"level":3}]},{"id":"20260420-211212-112567","words":["EXIT","GOING","TERMINATE","STOP","ROUGE","FINISH","BROAD","NARROW","WIDE","LIPSTICK","PASS","RELEASE","LOSS","EYESHADOW","CEASE","EYELINER"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF MAKEUP","words":["EYELINER","EYESHADOW","LIPSTICK","ROUGE"],"level":1},{"label":"TYPES OF DEATH","words":["EXIT","RELEASE","GOING","LOSS"],"level":2},{"label":"___ BAND","words":["PASS","BROAD","WIDE","NARROW"],"level":3}]},{"id":"20260420-211212-112642","words":["HELL","PURGATORY","CRUISERS","HEAVEN","LESSON","SLANG","SHADE","ESSENCE","JARGON","SENSE","GROUND","LINGO","FRONT","SHIPS","UTOPIA","VERNACULAR"],"groups":[{"label":"SYNONYMS OF CANT","words":["LINGO","JARGON","VERNACULAR","SLANG"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF MEANING","words":["SENSE","SHADE","ESSENCE","LESSON"],"level":2},{"label":"BATTLE ___","words":["FRONT","GROUND","CRUISERS","SHIPS"],"level":3}]},{"id":"20260420-211212-112714","words":["PHARMA","QUEER","ODD","CORN","GOLD","CURIOUS","OIL","SUBSIDIARY","DRILLING","COAL","CARVING","CUTTING","MOVER","SHIPPER","PECULIAR","EXCAVATION"],"groups":[{"label":"SYNONYMS OF FUNNY","words":["ODD","PECULIAR","CURIOUS","QUEER"],"level":0},{"label":"TYPES OF COMPANY","words":["MOVER","SUBSIDIARY","SHIPPER","PHARMA"],"level":1},{"label":"TYPES OF CREATING BY REMOVAL","words":["DRILLING","EXCAVATION","CARVING","CUTTING"],"level":2},{"label":"___ FIELDS","words":["COAL","GOLD","CORN","OIL"],"level":3}]},{"id":"20260420-211212-112810","words":["CLOCKWISE","MISDEMEANOR","ARGUMENT","REVOKE","REPEAL","ARREST","OVERTURN","FRAUD","HITCH","HALT","REVERSE","POINT","STAY","FORGERY","INTELLIGENCE","COMMISSION"],"groups":[{"label":"SYNONYMS OF LIFT","words":["OVERTURN","REVOKE","REVERSE","REPEAL"],"level":0},{"label":"TYPES OF CRIME","words":["MISDEMEANOR","FORGERY","COMMISSION","FRAUD"],"level":1},{"label":"TYPES OF INACTION","words":["HITCH","ARREST","HALT","STAY"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211212-112872","words":["PATHOLOGY","CENTER","STOP","BASES","SUPPORTER","RADIOLOGY","CHAMPION","SURGERY","POINT","TERMINATE","SHEET","NEUROLOGY","BOOSTER","CEASE","FINISH","FRIEND"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF MEDICAL SCIENCE","words":["RADIOLOGY","SURGERY","PATHOLOGY","NEUROLOGY"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"DATA ___","words":["SHEET","CENTER","POINT","BASES"],"level":3}]},{"id":"20260420-211212-118348","words":["STOP","TERMINATE","STEAM","POWER","CEASE","JURISDICTION","FINISH","PALSY","MOTOR","INFLAMMATION","APNEA","VETO","CONTROL","DISCRETION","FERRY","SCAR"],"groups":[{"label":"SYNONYMS OF END","words":["CEASE","FINISH","TERMINATE","STOP"],"level":0},{"label":"TYPES OF SYMPTOM","words":["SCAR","INFLAMMATION","APNEA","PALSY"],"level":1},{"label":"TYPES OF POWER","words":["DISCRETION","CONTROL","VETO","JURISDICTION"],"level":2},{"label":"___ BOAT","words":["FERRY","STEAM","POWER","MOTOR"],"level":3}]},{"id":"20260420-211212-123126","words":["SQUEEZE","MASTER","BATTLESHIP","THEME","BASE","DESTROYER","QUARTERS","CONTRACT","COMPRESS","COMPACT","FIRST","CORVETTE","STEM","START","CRUISER","ROOT"],"groups":[{"label":"SYNONYMS OF PRESS","words":["SQUEEZE","COMPACT","CONTRACT","COMPRESS"],"level":0},{"label":"TYPES OF WARSHIP","words":["CRUISER","CORVETTE","BATTLESHIP","DESTROYER"],"level":1},{"label":"TYPES OF FORM","words":["STEM","BASE","THEME","ROOT"],"level":2},{"label":"HEAD ___","words":["FIRST","START","MASTER","QUARTERS"],"level":3}]},{"id":"20260420-211212-123259","words":["ALMIGHTY","WORLD","SHADE","LESSON","JEHOVAH","SENSE","HEAVEN","DIVINE","UTOPIA","BROAD","ESSENCE","PURGATORY","MOUNTAIN","CLEAR","CREATOR","HELL"],"groups":[{"label":"SYNONYMS OF LORD","words":["CREATOR","JEHOVAH","ALMIGHTY","DIVINE"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF MEANING","words":["SENSE","SHADE","ESSENCE","LESSON"],"level":2},{"label":"___ VIEW","words":["BROAD","CLEAR","WORLD","MOUNTAIN"],"level":3}]},{"id":"20260420-211212-127987","words":["SLY","SLICK","LIFE","JOB","MORNING","SMASH","COMRADE","ROOMMATE","BELT","ENOUGH","BUDDY","CUNNING","KNOCK","BANG","BROTHER","DODGY"],"groups":[{"label":"SYNONYMS OF TRICKY","words":["CUNNING","DODGY","SLICK","SLY"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-128181","words":["BASE","BLUE","PARTISAN","GRIM","STEM","GLOOMY","THEME","COLLAR","JAW","DEPRESSED","BREAST","REPUBLICAN","ROOT","RED","FEDERALIST","MARXIST"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF FORM","words":["STEM","BASE","THEME","ROOT"],"level":2},{"label":"___ BONE","words":["JAW","BREAST","RED","COLLAR"],"level":3}]},{"id":"20260420-211212-128255","words":["LEFT","PRESENTATION","FIGHT","DESPICABLE","VILE","WAR","WRETCHED","TURN","BRIEFING","STRIFE","SLIMY","FEUD","PASS","HUNG","REPORT","TELLING"],"groups":[{"label":"SYNONYMS OF UGLY","words":["WRETCHED","VILE","DESPICABLE","SLIMY"],"level":0},{"label":"TYPES OF CONFLICT","words":["FEUD","STRIFE","FIGHT","WAR"],"level":1},{"label":"TYPES OF INFORMING","words":["BRIEFING","PRESENTATION","REPORT","TELLING"],"level":2},{"label":"___ OVER","words":["HUNG","LEFT","PASS","TURN"],"level":3}]},{"id":"20260420-211212-128306","words":["FOOTWORK","GLOOMY","ASSIST","GRIM","BELT","FRONT","GROUND","SHIPS","DEPRESSED","COMPLETION","BLUE","CRUISERS","BANG","ICING","SMASH","KNOCK"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF MANEUVER","words":["ASSIST","COMPLETION","ICING","FOOTWORK"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"BATTLE ___","words":["FRONT","GROUND","CRUISERS","SHIPS"],"level":3}]},{"id":"20260420-211212-128366","words":["COMPONENT","SACK","HAIR","ELEMENT","INGREDIENT","LEGS","BERTH","LIST","BUNK","DISPUTE","REBELLION","CONSTITUENT","DEFIANCE","PROTEST","COUCH","LINE"],"groups":[{"label":"SYNONYMS OF FACTOR","words":["ELEMENT","COMPONENT","INGREDIENT","CONSTITUENT"],"level":0},{"label":"TYPES OF RESISTANCE","words":["REBELLION","DISPUTE","PROTEST","DEFIANCE"],"level":1},{"label":"TYPES OF BED","words":["BERTH","BUNK","SACK","COUCH"],"level":2},{"label":"LONG ___","words":["LIST","LINE","LEGS","HAIR"],"level":3}]},{"id":"20260420-211212-128446","words":["PARTISAN","BANG","CHEESY","FEDERALIST","PUNK","REPUBLICAN","MARXIST","ICE","SLEAZY","LETTER","BUM","BELT","KNOCK","JUKE","LIGHT","SMASH"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"___ BOX","words":["ICE","LETTER","LIGHT","JUKE"],"level":3}]},{"id":"20260420-211212-128633","words":["MASTER","SMART","JEHOVAH","KNOCK","WILD","NICKNAME","DIVINE","BELT","ALMIGHTY","SCORE","DESIGNATION","CREATOR","SIGNATURE","BANG","PSEUDONYM","SMASH"],"groups":[{"label":"SYNONYMS OF LORD","words":["CREATOR","JEHOVAH","ALMIGHTY","DIVINE"],"level":0},{"label":"TYPES OF NAME","words":["DESIGNATION","NICKNAME","PSEUDONYM","SIGNATURE"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"___ CARD","words":["MASTER","WILD","SCORE","SMART"],"level":3}]},{"id":"20260420-211212-128692","words":["DRILLING","COMPONENT","TRIP","CONSTITUENT","EXCAVATION","HELL","INGREDIENT","ABOUT","HEAVEN","HEAD","CUTTING","UTOPIA","TABLE","CARVING","PURGATORY","ELEMENT"],"groups":[{"label":"SYNONYMS OF FACTOR","words":["ELEMENT","COMPONENT","INGREDIENT","CONSTITUENT"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF CREATING BY REMOVAL","words":["DRILLING","EXCAVATION","CARVING","CUTTING"],"level":2},{"label":"ROUND ___","words":["ABOUT","TABLE","TRIP","HEAD"],"level":3}]},{"id":"20260420-211212-128766","words":["DOWN","YOUNGSTER","REPUBLICAN","GULF","FEDERALIST","HACK","AIR","MINOR","PARTISAN","PLUG","FRY","NAG","MARXIST","BLOOD","JADE","KID"],"groups":[{"label":"SYNONYMS OF CHILD","words":["FRY","KID","YOUNGSTER","MINOR"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF HORSE","words":["PLUG","JADE","HACK","NAG"],"level":2},{"label":"___ STREAM","words":["GULF","AIR","DOWN","BLOOD"],"level":3}]},{"id":"20260420-211212-180068","words":["SLUG","DOWN","LICK","FRAUD","EVEN","SPECTACULAR","MISDEMEANOR","PUNCH","POINT","STRIKING","THROUGH","FORGERY","SALIENT","COMMISSION","PROMINENT","CLOUT"],"groups":[{"label":"SYNONYMS OF OUTSTANDING","words":["STRIKING","SPECTACULAR","PROMINENT","SALIENT"],"level":0},{"label":"TYPES OF CRIME","words":["MISDEMEANOR","FORGERY","COMMISSION","FRAUD"],"level":1},{"label":"TYPES OF BLOW","words":["PUNCH","SLUG","CLOUT","LICK"],"level":2},{"label":"BREAK ___","words":["DOWN","THROUGH","POINT","EVEN"],"level":3}]},{"id":"20260420-211212-180185","words":["FLUSH","SLEAZY","WIDE","PEAK","CHEESY","BUM","MARXIST","PRIME","NARROW","PUNK","BLOOM","FEDERALIST","REPUBLICAN","PASS","BROAD","PARTISAN"],"groups":[{"label":"SYNONYMS OF CHEAP","words":["PUNK","CHEESY","SLEAZY","BUM"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF TIME PERIOD","words":["FLUSH","BLOOM","PRIME","PEAK"],"level":2},{"label":"___ BAND","words":["PASS","BROAD","WIDE","NARROW"],"level":3}]},{"id":"20260420-211212-180259","words":["BASKET","WAIT","RUG","CARPET","REST","FURNITURE","HOLD","WET","SMASHED","CURVE","FITTING","POSTPONEMENT","LOADED","PLASTERED","VOLLEY","SOFT"],"groups":[{"label":"SYNONYMS OF TIGHT","words":["WET","LOADED","SMASHED","PLASTERED"],"level":0},{"label":"TYPES OF FURNISHING","words":["CARPET","RUG","FURNITURE","FITTING"],"level":1},{"label":"TYPES OF PAUSE","words":["POSTPONEMENT","HOLD","REST","WAIT"],"level":2},{"label":"___ BALL","words":["SOFT","VOLLEY","CURVE","BASKET"],"level":3}]},{"id":"20260420-211212-180498","words":["HERO","NOTION","POINT","SUBMARINE","IMPRESSION","IMMUNIZATION","WEDGE","DEFENSE","CLOCKWISE","OPINION","INSULATION","TORPEDO","CHARGE","BELIEF","INTELLIGENCE","ARGUMENT"],"groups":[{"label":"SYNONYMS OF FEELING","words":["NOTION","IMPRESSION","BELIEF","OPINION"],"level":0},{"label":"TYPES OF PROTECTION","words":["DEFENSE","INSULATION","IMMUNIZATION","CHARGE"],"level":1},{"label":"TYPES OF SANDWICH","words":["TORPEDO","SUBMARINE","WEDGE","HERO"],"level":2},{"label":"COUNTER ___","words":["POINT","CLOCKWISE","INTELLIGENCE","ARGUMENT"],"level":3}]},{"id":"20260420-211212-180554","words":["BRUTAL","DRY","VICIOUS","FEDERALIST","FARM","ROTTING","PASTURE","DECOMPOSITION","RUIN","FOREST","CRUEL","MARXIST","CAVITY","SAVAGE","PARTISAN","REPUBLICAN"],"groups":[{"label":"SYNONYMS OF FELL","words":["BRUTAL","VICIOUS","SAVAGE","CRUEL"],"level":0},{"label":"TYPES OF ADVOCATE","words":["FEDERALIST","MARXIST","PARTISAN","REPUBLICAN"],"level":1},{"label":"TYPES OF DECAY","words":["DECOMPOSITION","RUIN","CAVITY","ROTTING"],"level":2},{"label":"___ LAND","words":["PASTURE","DRY","FOREST","FARM"],"level":3}]},{"id":"20260420-211212-180606","words":["DERBY","HORRIFIC","LIFE","HORRENDOUS","SPOT","JOB","DREAD","ENOUGH","BONNET","SAILOR","MORNING","BAR","PATCH","FEARSOME","SHADING","TOPPER"],"groups":[{"label":"SYNONYMS OF TERRIBLE","words":["HORRIFIC","HORRENDOUS","DREAD","FEARSOME"],"level":0},{"label":"TYPES OF HAT","words":["DERBY","SAILOR","TOPPER","BONNET"],"level":1},{"label":"TYPES OF MARKING","words":["SPOT","SHADING","BAR","PATCH"],"level":2},{"label":"GOOD ___","words":["JOB","LIFE","MORNING","ENOUGH"],"level":3}]},{"id":"20260420-211212-180723","words":["FIELD","SUBJECT","CLEAR","STUDY","CONDUCT","ANALYST","ADEPT","MOUNTAIN","IMPART","CHANNEL","GUIDE","CONVEY","THERAPIST","DISCIPLINE","WORLD","BROAD"],"groups":[{"label":"SYNONYMS OF CARRY","words":["CHANNEL","CONDUCT","CONVEY","IMPART"],"level":0},{"label":"TYPES OF EXPERT","words":["ADEPT","ANALYST","THERAPIST","GUIDE"],"level":1},{"label":"TYPES OF KNOWLEDGE DOMAIN","words":["DISCIPLINE","SUBJECT","FIELD","STUDY"],"level":2},{"label":"___ VIEW","words":["BROAD","CLEAR","WORLD","MOUNTAIN"],"level":3}]},{"id":"20260420-211212-297404","words":["SUPPORTER","ROOMMATE","COMRADE","BROTHER","BOOSTER","LONG","DISMAL","CHECK","CHAMPION","SHORT","BUDDY","DREARY","FRIEND","GUEST","DRAB","DARK"],"groups":[{"label":"SYNONYMS OF SORRY","words":["DISMAL","DREARY","DARK","DRAB"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"___ LIST","words":["SHORT","LONG","CHECK","GUEST"],"level":3}]},{"id":"20260420-211212-314117","words":["ROOMMATE","POWER","SALARY","CHAMPION","BROTHER","FERRY","REMUNERATION","FRIEND","STEAM","SUPPORTER","BUDDY","WAGE","COMRADE","BOOSTER","MOTOR","EARNINGS"],"groups":[{"label":"SYNONYMS OF PAY","words":["EARNINGS","SALARY","WAGE","REMUNERATION"],"level":0},{"label":"TYPES OF FRIEND","words":["ROOMMATE","BUDDY","COMRADE","BROTHER"],"level":1},{"label":"TYPES OF ADVOCATE","words":["SUPPORTER","BOOSTER","FRIEND","CHAMPION"],"level":2},{"label":"___ BOAT","words":["FERRY","STEAM","POWER","MOTOR"],"level":3}]},{"id":"20260420-211212-314213","words":["SUSPICIOUS","SUSPECT","BASES","DISCIPLINE","STUDY","POINT","FISHY","SHADY","SUBJECT","FIELD","SWEDISH","DANISH","NORWEGIAN","SHEET","CENTER","ICELANDIC"],"groups":[{"label":"SYNONYMS OF FUNNY","words":["FISHY","SUSPICIOUS","SHADY","SUSPECT"],"level":0},{"label":"TYPES OF SCANDINAVIAN","words":["DANISH","ICELANDIC","SWEDISH","NORWEGIAN"],"level":1},{"label":"TYPES OF KNOWLEDGE DOMAIN","words":["DISCIPLINE","SUBJECT","FIELD","STUDY"],"level":2},{"label":"DATA ___","words":["SHEET","CENTER","POINT","BASES"],"level":3}]},{"id":"20260420-211212-314323","words":["HEAVEN","GLOOMY","GRIM","RED","BLUE","DEPRESSED","HELL","KNOCK","BELT","JAW","UTOPIA","PURGATORY","COLLAR","BREAST","BANG","SMASH"],"groups":[{"label":"SYNONYMS OF DOWN","words":["BLUE","DEPRESSED","GLOOMY","GRIM"],"level":0},{"label":"TYPES OF IMAGINARY PLACE","words":["HEAVEN","HELL","UTOPIA","PURGATORY"],"level":1},{"label":"TYPES OF BLOW","words":["BELT","SMASH","BANG","KNOCK"],"level":2},{"label":"___ BONE","words":["JAW","BREAST","RED","COLLAR"],"level":3}]}];
+        let order = [], cursor = 0;
+        function nextPuzzle() {
+            if (cursor >= order.length) {
+                order = PUZZLES.map((_, i) => i);
+                for (let i = order.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [order[i], order[j]] = [order[j], order[i]];
+                }
+                cursor = 0;
+            }
+            const idx = order[cursor++];
+            const p = PUZZLES[idx];
+            const words = [...p.words];
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            document.getElementById('pzNo').textContent = `Puzzle ${idx + 1} of ${PUZZLES.length}.`;
+            return { idx, words, groups: p.groups };
+        }
+
+        // ===== INITIALIZATION =====
+        async function newGame() {
+            gameOver = false;
+            selectedWords.clear();
+            solvedGroups = [];
+            mistakesLeft = 4;
+            guessHistory = [];
+
+            document.getElementById('grid').innerHTML = '<div class="loading-spinner"></div>';
+            document.getElementById('solvedGroups').innerHTML = '';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('mistakes').style.display = 'none';
+
+            try {
+                const data = nextPuzzle();
+                puzzle = data;
+                remainingWords = [...data.words];
+                renderGrid();
+                renderMistakes();
+                document.getElementById('controls').style.display = 'flex';
+                document.getElementById('mistakes').style.display = 'block';
+            } catch (err) {
+                showToast('Could not load puzzle');
+                console.error(err);
+            }
+        }
+
+        // ===== RENDERING =====
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            remainingWords.forEach(word => {
+                const cell = document.createElement('button');
+                cell.className = 'cell' + (selectedWords.has(word) ? ' selected' : '');
+                cell.textContent = word;
+                cell.onclick = () => toggleWord(word);
+                grid.appendChild(cell);
+            });
+
+            updateButtons();
+        }
+
+        function renderMistakes() {
+            const dots = document.getElementById('mistakeDots');
+            dots.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'mistake-dot' + (i >= mistakesLeft ? ' used' : '');
+                dots.appendChild(dot);
+            }
+        }
+
+        function renderSolvedGroup(group) {
+            const container = document.getElementById('solvedGroups');
+            const row = document.createElement('div');
+            const colorClass = LEVEL_COLORS[group.level] || 'yellow';
+            row.className = `solved-row ${colorClass}`;
+            row.innerHTML = `
+                <div class="solved-label">${group.label}</div>
+                <div class="solved-words">${group.words.join(', ')}</div>
+            `;
+            container.appendChild(row);
+        }
+
+        // ===== INTERACTION =====
+        function toggleWord(word) {
+            if (gameOver) return;
+
+            if (selectedWords.has(word)) {
+                selectedWords.delete(word);
+            } else if (selectedWords.size < 4) {
+                selectedWords.add(word);
+            }
+            renderGrid();
+        }
+
+        function deselectAll() {
+            selectedWords.clear();
+            renderGrid();
+        }
+
+        function shuffleWords() {
+            for (let i = remainingWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [remainingWords[i], remainingWords[j]] = [remainingWords[j], remainingWords[i]];
+            }
+            renderGrid();
+        }
+
+        function updateButtons() {
+            document.getElementById('submitBtn').disabled = selectedWords.size !== 4;
+            document.getElementById('deselectBtn').disabled = selectedWords.size === 0;
+        }
+
+        async function submitGuess() {
+            if (selectedWords.size !== 4 || gameOver) return;
+
+            const guessArr = Array.from(selectedWords);
+
+            // Check for duplicate guess
+            const guessKey = [...guessArr].sort().join(',');
+            if (guessHistory.includes(guessKey)) {
+                showToast('Already guessed!');
+                return;
+            }
+            guessHistory.push(guessKey);
+
+            try {
+                const guess = new Set(guessArr.map(w => w.toUpperCase()));
+                let data = { correct: false, close: 0 };
+                for (const g of puzzle.groups) {
+                    const overlap = g.words.filter(w => guess.has(w)).length;
+                    if (overlap === 4) { data = { correct: true, group: g }; break; }
+                    data.close = Math.max(data.close, overlap);
+                }
+
+                if (data.correct) {
+                    // Remove solved words from grid
+                    const solvedSet = new Set(data.group.words);
+                    remainingWords = remainingWords.filter(w => !solvedSet.has(w));
+                    selectedWords.clear();
+                    solvedGroups.push(data.group);
+
+                    renderSolvedGroup(data.group);
+                    renderGrid();
+
+                    if (remainingWords.length === 0) {
+                        endGame(true);
+                    }
+                } else {
+                    // Wrong guess
+                    mistakesLeft--;
+                    renderMistakes();
+
+                    if (data.close === 3) {
+                        showToast('One away...');
+                    } else {
+                        showToast('Incorrect');
+                    }
+
+                    // Shake animation on selected cells
+                    document.querySelectorAll('.cell.selected').forEach(cell => {
+                        cell.classList.add('wrong');
+                        setTimeout(() => cell.classList.remove('wrong'), 500);
+                    });
+
+                    selectedWords.clear();
+                    renderGrid();
+
+                    if (mistakesLeft <= 0) {
+                        endGame(false);
+                    }
+                }
+            } catch (err) {
+                showToast('Error checking guess');
+                console.error(err);
+            }
+        }
+
+        async function endGame(won) {
+            gameOver = true;
+            document.getElementById('controls').style.display = 'none';
+
+            if (!won) {
+                // Reveal remaining groups
+                const data = { groups: puzzle.groups };
+
+                for (const group of data.groups) {
+                    const alreadySolved = solvedGroups.some(sg =>
+                        sg.label === group.label
+                    );
+                    if (!alreadySolved) {
+                        await new Promise(r => setTimeout(r, 400));
+                        renderSolvedGroup(group);
+                    }
+                }
+
+                remainingWords = [];
+                document.getElementById('grid').innerHTML = '';
+            }
+
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.innerHTML = won
+                ? `<h2>Excellent!</h2><p>Solved with ${4 - mistakesLeft} mistake${mistakesLeft === 3 ? '' : 's'}</p>`
+                : `<h2>Next time!</h2><p>Better luck on the next puzzle</p>`;
+        }
+
+        // ===== TOAST =====
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ===== KEYBOARD SUPPORT =====
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && selectedWords.size === 4 && !gameOver) {
+                submitGuess();
+            }
+        });
+
+        // ===== AUTO-START =====
+        newGame();
+    </script>
+</body>
+</html>

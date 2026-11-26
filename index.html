@@ -100,8 +100,9 @@
     <div class="title">Synthetic Conjecture Generation and Nano-LLM Training for Graph Theory</div>
     <div class="meta">Duke University, 09/2026 to present. With Prof. Ethan X. Fang and Prof. Junwei Lu.</div>
     <ul>
-      <li>Extending a forward-chaining engine that generates graph-theory conjectures with diverse statements and proofs, each verified in Lean 4. Proved results are reused as premises for harder ones.</li>
-      <li>Training a nano-scale language model on this data to solve new graph-theory problems, with currently open problems as a long-term goal.</li>
+      <li>Designed a symbolic forward-deduction engine that generates graph-theory theorems from verified facts by linear combination, integer rounding, case splitting, and structural deduction. Proved results become premises for later ones.</li>
+      <li>Every candidate statement and proof is checked by the Lean 4 kernel, and only verified pairs enter the training corpus, which now holds over 6,400 theorems.</li>
+      <li>Fine-tuning small language models with LoRA on this corpus, evaluated by Lean-verified pass@k rather than textual similarity.</li>
     </ul>
   </div>
 
@@ -167,8 +168,8 @@
 
   <div class="entry">
     <div class="title">A Multi-Agent System for Generating NYT Connections Puzzles</div>
-    <div class="meta">Independent project, 2026. [<a href="https://github.com/FELIXGAO0315/Connections-Generating-Agent-System">Code</a>]</div>
-    <div>An agent pipeline that generates Connections-style word puzzles across four difficulty levels, combining classifiers trained on past puzzles, external knowledge sources, and LLM-based quality checks.</div>
+    <div class="meta">Duke University, 03/2026 to 05/2026. Independent project. [<a href="connections/">Play</a>] [<a href="https://github.com/FELIXGAO0315/Connections-Generating-Agent-System">Code</a>]</div>
+    <div>An agent pipeline that generates Connections-style word puzzles across four difficulty levels, combining classifiers trained on past puzzles, external knowledge sources, and LLM-based quality checks. On a 100-puzzle evaluation it reached an average quality score of 8.53.</div>
   </div>
 
   <div class="entry">
